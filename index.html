@@ -1,97 +1,21 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ГЕРОИ ВЕЧНОСТЬ — Мемориал</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body, html {
-            margin: 0;
-            padding: 0;
-            background-color: #000;
-            color: white;
-            font-family: sans-serif;
-            height: 100%;
+// Этот код должен быть ВНЕ функций, просто в теле скрипта
+auth.getRedirectResult()
+    .then((result) => {
+        // Если в результате есть пользователь, значит мы только что вернулись от Google
+        if (result && result.user) {
+            console.log("Вход выполнен через Google:", result.user.displayName);
+            localStorage.setItem('user_name', result.user.displayName);
+            window.location.href = 'chat.html'; // Отправляем в чат
         }
+    })
+    .catch((error) => {
+        console.error("Ошибка при возврате от Google:", error);
+    });
 
-        /* Фото-секция: ЧИСТАЯ, без наложений и затемнений */
-        .photo-container {
-            width: 100%;
-            height: 60vh; /* Занимает 60% экрана */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #000;
-        }
-
-        .hero-img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain; /* Фото не обрезается и остается ярким */
-        }
-
-        /* Секция с текстом: ниже фото, на черном фоне */
-        .info-container {
-            height: 40vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .btn-gold {
-            border: 2px solid #d4af37;
-            color: #d4af37;
-            padding: 12px 28px;
-            font-weight: bold;
-            text-transform: uppercase;
-            transition: 0.3s;
-        }
-        .btn-gold:hover { background: #d4af37; color: black; }
-
-        .btn-white {
-            border: 2px solid white;
-            color: white;
-            padding: 12px 28px;
-            font-weight: bold;
-            text-transform: uppercase;
-            transition: 0.3s;
-        }
-        .btn-white:hover { background: white; color: black; }
-    </style>
-</head>
-<body>
-
-    <div class="absolute top-0 right-0 p-5 flex gap-5 text-xs uppercase tracking-widest opacity-60 z-10">
-    <a href="chat.html" class="text-[#d4af37] border-b border-[#d4af37] pb-1 hover:opacity-100">Чат памяти</a>
-    
-    <a href="login.html" class="hover:text-[#d4af37]">Вход</a>
-    <a href="reg.html" class="hover:text-[#d4af37]">Регистрация</a>
-</div>
-
-    <div class="photo-container">
-        <img src="bg.png" class="hero-img" alt="Герои Вечность">
-    </div>
-
-    <div class="info-container">
-        <h1 class="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-2">
-            ГЕРОИ <span class="text-[#d4af37]">ВЕЧНОСТЬ</span>
-        </h1>
-        
-        <div class="h-1 w-12 bg-[#d4af37] mb-4"></div>
-        
-        <p class="text-sm md:text-lg italic opacity-90 uppercase tracking-[0.2em] mb-8">
-            Память павшим в СВО России
-        </p>
-
-        <div class="flex flex-col md:flex-row gap-4">
-            <a href="archive.html" class="btn-gold">Открыть архив</a>
-            <a href="add-hero.html" class="btn-white">Добавить воина</a>
-        </div>
-    </div>
-
-</body>
-</html>
+// И на всякий случай добавим проверку: если пользователь уже вошел
+auth.onAuthStateChanged((user) => {
+    if (user) {
+        localStorage.setItem('user_name', user.displayName);
+        // window.location.href = 'chat.html'; // Раскомментируй это, если хочешь авто-вход
+    }
+});
