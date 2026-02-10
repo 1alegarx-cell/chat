@@ -3,129 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Чат Памяти — ГЕРОИ ВЕЧНОСТЬ</title>
+    <title>Чат — ГЕРОИ ВЕЧНОСТЬ</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-
     <style>
-        body { background: #000; color: white; font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; margin: 0; }
-        .chat-bg {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(0,0,0,0.7), #000), url('bg.png') no-repeat center top;
-            background-size: cover; z-index: -1; filter: blur(10px);
-        }
-        .messages-container { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
-        .message { background: rgba(255,255,255,0.1); border: 1px solid rgba(212,175,55,0.3); padding: 10px; border-radius: 8px; max-width: 80%; align-self: flex-start; }
-        .time { font-size: 10px; opacity: 0.5; display: block; margin-top: 5px; }
+        body { background: #000; color: white; font-family: sans-serif; height: 100vh; display: flex; flex-direction: column; }
+        #chat-window { flex-grow: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .msg { background: rgba(255, 255, 255, 0.1); border-left: 3px solid #d4af37; padding: 10px; border-radius: 5px; max-width: 80%; }
+        .msg-name { color: #d4af37; font-size: 12px; font-weight: bold; margin-bottom: 4px; }
+        .input-area { background: #111; padding: 15px; border-top: 1px solid #d4af37; display: flex; gap: 10px; }
+        input { background: #222; border: 1px solid #333; padding: 10px; flex-grow: 1; border-radius: 5px; color: white; outline: none; }
+        button { background: #d4af37; color: black; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div class="chat-bg"></div>
+    <div id="chat-window"></div>
 
-    <div class="p-4 border-b border-[#d4af37]/30 bg-black/80 flex justify-between items-center">
-    <div class="flex items-center gap-4">
-        <a href="index.html" class="text-[#d4af37] text-xs font-bold uppercase">← Назад</a>
-        <button onclick="logout()" class="text-red-500/70 hover:text-red-500 text-[10px] uppercase font-bold border-l border-white/10 pl-4 transition">Выйти</button>
-    </div>
-    
-    <h2 class="font-bold uppercase tracking-tighter text-sm md:text-lg">Общий чат</h2>
-    <span id="myUserName" class="text-[10px] text-white/50"></span>
-</div>
-
-    <div class="messages-container" id="chatBox">
-        </div>
-
-    <div class="p-4 bg-black border-t border-[#d4af37]/20">
-        <div class="max-w-4xl mx-auto flex gap-2">
-            <input type="text" id="userInput" placeholder="Введите сообщение..." 
-                   class="flex-1 bg-white/5 border border-white/20 rounded-lg px-4 py-3 outline-none focus:border-[#d4af37] text-white">
-            <button onclick="sendMessage()" class="bg-[#d4af37] text-black font-bold px-6 py-3 rounded-lg uppercase text-xs">
-                ОК
-            </button>
-        </div>
+    <div class="input-area">
+        <input type="text" id="messageInput" placeholder="Введите сообщение...">
+        <button onclick="sendMessage()">ОТПРАВИТЬ</button>
     </div>
 
-   <script>
-    // 1. Конфигурация Firebase
-    const firebaseConfig = {
-        apiKey: "AIzaSyB7bTin28New3YE4GsgTjcJnzllzJn_-YI",
-        authDomain: "geroivechnost.firebaseapp.com",
-        databaseURL: "https://geroivechnost-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "geroivechnost",
-        storageBucket: "geroivechnost.firebasestorage.app",
-        messagingSenderId: "571001236869",
-        appId: "1:571001236869:web:26d2692cff6b4c49ada8ec"
-    };
+    <script>
+        // Твой конфиг Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyB7bTin28New3YE4GsgTjcJnzllzJn_-YI",
+            authDomain: "geroivechnost.firebaseapp.com",
+            databaseURL: "https://geroivechnost-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "geroivechnost",
+            storageBucket: "geroivechnost.firebasestorage.app",
+            messagingSenderId: "571001236869",
+            appId: "1:571001236869:web:26d2692cff6b4c49ada8ec"
+        };
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const userName = localStorage.getItem('user_name') || 'Аноним';
 
-    // 2. Проверка пользователя
-    const userName = localStorage.getItem('user_name');
-    const myNameDisplay = document.getElementById('myUserName');
+        // 1. Функция отправки сообщения
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
 
-    if (!userName) {
-        const inputArea = document.querySelector('.max-w-4xl');
-        if (inputArea) {
-            inputArea.innerHTML = `<div class="text-center w-full p-2 bg-red-900/20 border border-red-500/50 rounded-lg text-xs text-red-200">Чтобы писать сообщения, нужно <a href="login.html" class="underline text-[#d4af37]">войти в аккаунт</a></div>`;
+            if (text !== "") {
+                db.ref("messages").push().set({
+                    username: userName,
+                    message: text,
+                    timestamp: Date.now()
+                });
+                input.value = ""; // Очистить поле
+            }
         }
-    } else {
-        if (myNameDisplay) myNameDisplay.innerText = "Вы: " + userName;
-    }
 
-    // 3. ФУНКЦИЯ ВЫХОДА (Исправленная)
-    function logout() {
-        if (confirm("Выйти из аккаунта?")) {
-            localStorage.clear(); // Полная очистка памяти
-            window.location.assign("login.html"); // Более надежный метод перенаправления
-        }
-    }
+        // 2. Слушаем новые сообщения и выводим их
+        db.ref("messages").limitToLast(50).on("child_added", (snapshot) => {
+            const data = snapshot.val();
+            const chatWindow = document.getElementById('chat-window');
 
-    // 4. Отправка сообщений
-    function sendMessage() {
-        const input = document.getElementById('userInput');
-        if (input && input.value.trim() !== "" && userName) {
-            db.ref("messages").push().set({
-                name: userName,
-                text: input.value,
-                time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
-            });
-            input.value = "";
-        }
-    }
-
-    // 5. Отображение сообщений с именами
-    db.ref("messages").on("value", (snapshot) => {
-        const box = document.getElementById('chatBox');
-        if (!box) return;
-        box.innerHTML = "";
-        
-        snapshot.forEach((childSnapshot) => {
-            const data = childSnapshot.val();
-            const div = document.createElement('div');
-            div.className = 'message';
-            // Добавляем оформление имени внутри сообщения
-            div.innerHTML = `
-                <span style="color: #d4af37; font-size: 11px; font-weight: bold; display: block; margin-bottom: 4px;">${data.name}</span>
-                <p style="margin: 0;">${data.text}</p>
-                <span class="time">${data.time}</span>
-            `;
-            box.appendChild(div);
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'msg';
+            messageDiv.innerHTML = `<div class="msg-name">${data.username}</div><div>${data.message}</div>`;
+            
+            chatWindow.appendChild(messageDiv);
+            chatWindow.scrollTop = chatWindow.scrollHeight; // Скролл вниз
         });
-        box.scrollTop = box.scrollHeight;
-    });
 
-    // Слушатель Enter
-    const inputField = document.getElementById('userInput');
-    if (inputField) {
-        inputField.addEventListener('keypress', (e) => {
+        // Отправка по нажатию Enter
+        document.getElementById('messageInput').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') sendMessage();
         });
-    }
-</script>
-
+    </script>
 </body>
 </html>
