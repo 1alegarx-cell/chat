@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход — ГЕРОИ ВЕЧНОСТЬ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <style>
+        body { background: #000; color: white; font-family: sans-serif; }
+        .login-box { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(212, 175, 55, 0.2); backdrop-filter: blur(10px); }
+        .form-input { background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.1); padding: 12px; border-radius: 8px; width: 100%; outline: none; color: white; }
+        .btn-gold { background: #d4af37; color: black; font-weight: bold; padding: 12px; border-radius: 8px; text-transform: uppercase; width: 100%; cursor: pointer; }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+
+    <div class="login-box p-8 rounded-2xl max-w-sm w-full">
+        <h2 class="text-xl font-bold text-center mb-6 uppercase tracking-widest text-[#d4af37]">Авторизация</h2>
+        
+        <form id="loginForm" class="space-y-4 mb-6">
+            <input type="text" id="username" required placeholder="Имя (для чата)" class="form-input">
+            <input type="password" required placeholder="Пароль" class="form-input">
+            <button type="submit" class="btn-gold">Войти</button>
+        </form>
+
+        <div class="relative flex py-3 items-center">
+            <div class="flex-grow border-t border-white/10"></div>
+            <span class="flex-shrink mx-4 text-gray-500 text-[10px] uppercase">ИЛИ</span>
+            <div class="flex-grow border-t border-white/10"></div>
+        </div>
+
+        <button onclick="signInWithGoogle()" class="mt-4 flex items-center justify-center gap-2 bg-white text-black w-full py-3 rounded-lg font-bold uppercase text-[10px] transition hover:bg-gray-200">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/action/google.svg" width="16" alt="G">
+            Войти через Google
+        </button>
+        
+        <div class="mt-6 text-center flex flex-col gap-2">
+            <a href="reg.html" class="text-[10px] text-[#d4af37] uppercase underline">Создать аккаунт</a>
+            <a href="index.html" class="text-[10px] opacity-30 uppercase">← На главную</a>
+        </div>
+    </div>
+
+   <script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyB7bTin28New3YE4GsgTjcJnzllzJn_-YI",
+        authDomain: "geroivechnost.firebaseapp.com",
+        databaseURL: "https://geroivechnost-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "geroivechnost",
+        storageBucket: "geroivechnost.firebasestorage.app",
+        messagingSenderId: "571001236869",
+        appId: "1:571001236869:web:26d2692cff6b4c49ada8ec"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    // 1. Вход через Google (Метод REDIRECT вместо Popup)
+    function signInWithGoogle() {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        // Это не открывает окно, а уводит страницу на авторизацию
+        auth.signInWithRedirect(provider);
+    }
+
+    // 2. Ловим результат после возвращения с сайта Google
+    auth.getRedirectResult()
+        .then((result) => {
+            if (result.user) {
+                // Если вход успешен, берем имя и в чат
+                localStorage.setItem('user_name', result.user.displayName);
+                window.location.href = 'chat.html';
+            }
+        })
+        .catch((error) => {
+            // Игнорируем ошибку отмены, если она возникла случайно
+            if (error.code !== 'auth/cancelled-popup-request') {
+                alert("Ошибка: " + error.message);
+            }
+        });
+
+    // 3. Обычный вход по форме
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const name = document.getElementById('username').value;
+        if (name.trim() !== "") {
+            localStorage.setItem('user_name', name);
+            window.location.href = 'chat.html';
+        }
+    });
+</script>
+</body>
+</html>
