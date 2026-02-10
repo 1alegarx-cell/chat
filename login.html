@@ -1,47 +1,39 @@
-<script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyB7bTin28New3YE4GsgTjcJnzllzJn_-YI",
-        authDomain: "geroivechnost.firebaseapp.com",
-        databaseURL: "https://geroivechnost-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "geroivechnost",
-        storageBucket: "geroivechnost.firebasestorage.app",
-        messagingSenderId: "571001236869",
-        appId: "1:571001236869:web:26d2692cff6b4c49ada8ec"
-    };
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вход — ГЕРОИ ВЕЧНОСТЬ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <style>
+        body { background: #000; color: white; font-family: sans-serif; }
+        .login-box { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(212, 175, 55, 0.2); backdrop-filter: blur(10px); }
+        .form-input { background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.1); padding: 12px; border-radius: 8px; width: 100%; outline: none; color: white; transition: 0.3s; }
+        .form-input:focus { border-color: #d4af37; background: rgba(255, 255, 255, 0.12); }
+        .btn-gold { background: #d4af37; color: black; font-weight: bold; padding: 12px; border-radius: 8px; text-transform: uppercase; width: 100%; cursor: pointer; transition: 0.3s; }
+        .btn-gold:hover { background: #f1c40f; transform: translateY(-1px); }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
+    <div class="login-box p-8 rounded-2xl max-w-sm w-full shadow-2xl">
+        <h2 class="text-xl font-bold text-center mb-6 uppercase tracking-widest text-[#d4af37]">Авторизация</h2>
+        
+        <form id="loginForm" class="space-y-4">
+            <input type="text" id="username" required placeholder="Имя (для чата)" class="form-input">
+            <input type="password" required placeholder="Пароль" class="form-input">
+            <button type="submit" class="btn-gold">Войти</button>
+        </form>
 
-    function signInWithGoogle() {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        // Используем Redirect для надежности на всех устройствах
-        auth.signInWithRedirect(provider);
-    }
+        <div class="relative flex py-5 items-center">
+            <div class="flex-grow border-t border-white/10"></div>
+            <span class="flex-shrink mx-4 text-gray-500 text-[10px] uppercase tracking-tighter">ИЛИ</span>
+            <div class="flex-grow border-t border-white/10"></div>
+        </div>
 
-    // ГЛАВНЫЙ БЛОК: Ловим пользователя после возврата
-    auth.getRedirectResult().then((result) => {
-        if (result.user) {
-            console.log("Успешный вход!");
-            localStorage.setItem('user_name', result.user.displayName);
-            window.location.replace('chat.html'); // replace лучше чем href, он не дает вернуться назад
-        }
-    }).catch((error) => {
-        console.error("Ошибка редиректа:", error.message);
-    });
-
-    // Дополнительная проверка: если сессия уже активна
-    auth.onAuthStateChanged((user) => {
-        if (user) {
-            localStorage.setItem('user_name', user.displayName);
-            window.location.replace('chat.html');
-        }
-    });
-
-    // Ручной вход
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const name = document.getElementById('username').value;
-        localStorage.setItem('user_name', name);
-        window.location.href = 'chat.html';
-    });
-</script>
+        <button onclick="signInWithGoogle()" class="group relative flex w-full items-center justify-center rounded-lg bg-white px-4 py-3 text-sm font-bold text-black transition-all hover:bg-gray-100 shadow-lg">
+            <div class="absolute left-4 flex items-center justify-center">
+                <svg width="18" height="18" viewBox="0 0 24 24">
+                    <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92
