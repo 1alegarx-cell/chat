@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Geroi Vechnost | Главная</title>
+    <title>ГЕРОИ ВЕЧНОСТЬ | Память павшим в СВО</title>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
@@ -13,112 +13,76 @@
     
     <style>
         body {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: radial-gradient(circle at top, #1a1a2e 0%, #0f0f1a 100%);
             color: white;
             min-height: 100vh;
-            margin-right: 300px; /* Место под чат */
-            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            margin-right: 320px; /* Отступ под чат */
+            font-family: 'Inter', sans-serif;
         }
 
-        /* Улучшенный Стеклянный дизайн чата */
+        /* Стеклянный чат справа */
         .glass-sidebar {
             position: fixed;
             top: 0;
             right: 0;
-            width: 300px;
+            width: 320px;
             height: 100vh;
             background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(25px) saturate(160%);
-            -webkit-backdrop-filter: blur(25px) saturate(160%);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
             border-left: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             flex-direction: column;
             z-index: 1000;
         }
 
-        .side-header {
-            padding: 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            background: rgba(0,0,0,0.1);
-        }
-
-        .live-indicator {
-            font-size: 10px;
-            font-weight: bold;
-            color: rgba(255, 255, 255, 0.6);
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            letter-spacing: 1.5px;
-        }
-
-        .dot {
-            width: 8px;
-            height: 8px;
-            background: #ff3b30;
-            border-radius: 50%;
-            box-shadow: 0 0 10px #ff3b30;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; }
-        }
-
+        /* Сообщения */
         #side-messages-flow {
             flex-grow: 1;
             overflow-y: auto;
-            padding: 15px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             gap: 12px;
         }
 
-        /* Стиль сообщения с аватаркой */
         .mini-msg {
-            background: rgba(255, 255, 255, 0.06);
-            padding: 12px;
-            border-radius: 18px;
-            border-bottom-left-radius: 4px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px 14px;
+            border-radius: 15px;
+            border-bottom-left-radius: 2px;
             border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: 0.2s;
+            font-size: 13px;
         }
 
-        .mini-msg:hover { background: rgba(255, 255, 255, 0.1); }
+        .msg-author { font-size: 10px; font-weight: 800; margin-bottom: 2px; text-transform: uppercase; }
 
-        .msg-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 5px;
-        }
-
-        .msg-author {
-            font-size: 11px;
-            font-weight: 800;
+        /* Шапка и кнопки сайта */
+        .hero-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 24px;
+            border-radius: 12px;
+            transition: 0.3s;
             text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 1px;
+            font-size: 13px;
         }
+        .hero-btn:hover { background: #007AFF; border-color: #007AFF; box-shadow: 0 0 20px rgba(0, 122, 255, 0.4); }
 
-        .msg-time { font-size: 9px; color: rgba(255, 255, 255, 0.3); }
-
-        #side-input-bar {
-            padding: 20px;
-            background: rgba(0, 0, 0, 0.2);
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .chat-input {
+        input.chat-input {
             width: 100%;
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.07);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 20px;
             padding: 10px 15px;
             color: white;
             outline: none;
-            font-size: 13px;
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 900px) {
             body { margin-right: 0; }
             .glass-sidebar { display: none; }
         }
@@ -126,34 +90,40 @@
 </head>
 <body>
 
-    <div class="p-10">
-        <h1 class="text-5xl font-black mb-4 tracking-tighter italic">GEROI VECHNOST</h1>
-        <p class="text-gray-400 max-w-md text-lg">Мир, где каждый герой оставляет свой след. Общайся в реальном времени.</p>
+    <div class="max-w-4xl mx-auto p-8 pt-20 text-center">
+        <h1 class="text-6xl font-black mb-2 tracking-tighter uppercase italic">ГЕРОИ ВЕЧНОСТЬ</h1>
+        <p class="text-red-500 font-bold tracking-widest mb-10 text-sm uppercase">Память павшим в СВО России</p>
         
-        <div id="login-section" class="mt-10">
-            <button onclick="loginWithGoogle()" class="bg-blue-600 px-10 py-4 rounded-full font-bold hover:bg-blue-700 transition shadow-2xl shadow-blue-500/20 uppercase text-sm tracking-widest">
-                Присоединиться к Героям
+        <div class="flex flex-wrap justify-center gap-4 mt-10">
+            <button class="hero-btn">Открыть архив</button>
+            <button class="hero-btn">Добавить воина</button>
+        </div>
+
+        <div id="login-section" class="mt-16">
+            <p class="text-gray-500 text-xs mb-4 uppercase tracking-widest">Присоединиться к сообществу</p>
+            <button onclick="loginWithGoogle()" class="bg-white text-black px-8 py-3 rounded-full font-bold hover:bg-gray-200 transition uppercase text-xs">
+                Вход через Google
             </button>
         </div>
     </div>
 
-    <div id="side-widget" class="glass-sidebar">
-        <div class="side-header">
-            <div class="live-indicator">
-                <span class="dot"></span>
-                LIVE STREAM
+    <div class="glass-sidebar">
+        <div class="p-5 border-b border-white/10 flex items-center justify-between">
+            <span class="text-[10px] font-bold tracking-widest text-white/50 uppercase">Live Общение</span>
+            <div class="flex items-center gap-2">
+                <span class="w-2 h-2 bg-red-600 rounded-full animate-pulse shadow-[0_0_10px_red]"></span>
             </div>
         </div>
 
         <div id="side-messages-flow">
             </div>
 
-        <div id="side-input-bar">
+        <div id="side-input-bar" class="p-5 bg-black/20">
             </div>
     </div>
 
     <script>
-        // Конфигурация Firebase
+        // Твои настройки Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyB7bTin28New3YE4GsgTjcJnzllzJn_-YI",
             authDomain: "geroivechnost.firebaseapp.com",
@@ -169,7 +139,9 @@
         const db = firebase.database();
         const provider = new firebase.auth.GoogleAuthProvider();
 
-        // 1. Обработка входа Google
+        // Вход через Google
+        function loginWithGoogle() { auth.signInWithRedirect(provider); }
+
         auth.getRedirectResult().then((result) => {
             if (result && result.user) {
                 localStorage.setItem('user_name', result.user.displayName);
@@ -178,7 +150,7 @@
             }
         });
 
-        // 2. Статус пользователя
+        // Проверка авторизации
         auth.onAuthStateChanged((user) => {
             const inputBar = document.getElementById('side-input-bar');
             if (user) {
@@ -188,12 +160,50 @@
                 
                 inputBar.innerHTML = `
                     <div class="flex gap-2">
-                        <input type="text" id="sideInput" placeholder="Написать героям..." class="chat-input">
-                        <button onclick="sendMsg()" class="bg-blue-600 w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/40">↑</button>
+                        <input type="text" id="sideInput" placeholder="Написать..." class="chat-input text-xs">
+                        <button onclick="sendMsg()" class="bg-blue-600 w-10 h-10 rounded-full flex items-center justify-center shrink-0">↑</button>
                     </div>
                 `;
-                
-                document.getElementById('sideInput').addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') sendMsg();
+            } else {
+                inputBar.innerHTML = `<button onclick="loginWithGoogle()" class="w-full text-[9px] font-bold text-blue-400 border border-blue-400/20 py-2 rounded-lg uppercase tracking-tighter">Войти, чтобы писать</button>`;
+            }
+        });
+
+        // Чат в реальном времени
+        db.ref("messages").limitToLast(25).on("child_added", (snapshot) => {
+            const data = snapshot.val();
+            const flow = document.getElementById('side-messages-flow');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = "mini-msg";
+            msgDiv.innerHTML = `
+                <div class="flex items-center gap-2 mb-1">
+                    <img src="${data.photo || ''}" class="w-4 h-4 rounded-full">
+                    <span class="msg-author" style="color: ${stringToColor(data.username)}">${data.username}</span>
+                </div>
+                <div class="text-white/80">${data.message}</div>
+            `;
+            flow.appendChild(msgDiv);
+            flow.scrollTop = flow.scrollHeight;
+        });
+
+        function sendMsg() {
+            const input = document.getElementById('sideInput');
+            if (input.value.trim() !== "") {
+                db.ref("messages").push().set({
+                    username: localStorage.getItem('user_name'),
+                    message: input.value,
+                    photo: localStorage.getItem('user_photo'),
+                    timestamp: Date.now()
                 });
-            } else
+                input.value = "";
+            }
+        }
+
+        function stringToColor(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+            return `hsl(${Math.abs(hash % 360)}, 70%, 70%)`;
+        }
+    </script>
+</body>
+</html>
