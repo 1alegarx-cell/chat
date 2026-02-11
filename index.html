@@ -1,21 +1,123 @@
-// Этот код должен быть ВНЕ функций, просто в теле скрипта
-auth.getRedirectResult()
-    .then((result) => {
-        // Если в результате есть пользователь, значит мы только что вернулись от Google
-        if (result && result.user) {
-            console.log("Вход выполнен через Google:", result.user.displayName);
-            localStorage.setItem('user_name', result.user.displayName);
-            window.location.href = 'chat.html'; // Отправляем в чат
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geroi Vechnost | Главная</title>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            min-height: 100vh;
+            margin-right: 300px; /* Оставляем место под чат справа */
         }
-    })
-    .catch((error) => {
-        console.error("Ошибка при возврате от Google:", error);
-    });
+        /* Стили для бокового чата */
+        #side-chat {
+            position: fixed; top: 0; right: 0; width: 300px; height: 100vh;
+            background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(15px);
+            border-left: 1px solid rgba(255,255,255,0.1);
+            display: flex; flex-direction: column; z-index: 1000;
+        }
+        #side-messages { flex-grow: 1; overflow-y: auto; padding: 15px; font-size: 14px; }
+        .msg-bubble { background: rgba(255,255,255,0.1); padding: 8px; border-radius: 10px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
 
-// И на всякий случай добавим проверку: если пользователь уже вошел
-auth.onAuthStateChanged((user) => {
-    if (user) {
-        localStorage.setItem('user_name', user.displayName);
-        // window.location.href = 'chat.html'; // Раскомментируй это, если хочешь авто-вход
-    }
-});
+    <div class="p-10">
+        <h1 class="text-4xl font-bold mb-4">Geroi Vechnost</h1>
+        <p class="text-gray-400">Добро пожаловать в мир вечных героев.</p>
+        <div id="login-section" class="mt-10">
+            <button onclick="loginWithGoogle()" class="bg-blue-600 px-6 py-3 rounded-full font-bold hover:bg-blue-700 transition">
+                Войти через Google
+            </button>
+        </div>
+    </div>
+
+    <div id="side-chat">
+        <div class="p-4 border-b border-white/10 font-bold text-center">LIVE ЧАТ</div>
+        <div id="side-messages"></div>
+        <div id="side-input-container" class="p-4 bg-black/20">
+            </div>
+    </div>
+
+    <script>
+        // 2. Настройки Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyB7bTin28New3YE4GsgTjcJnzllzJn_-YI",
+            authDomain: "geroivechnost.firebaseapp.com",
+            databaseURL: "https://geroivechnost-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "geroivechnost",
+            storageBucket: "geroivechnost.firebasestorage.app",
+            messagingSenderId: "571001236869",
+            appId: "1:571001236869:web:26d2692cff6b4c49ada8ec"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+        const provider = new firebase.auth.GoogleAuthProvider();
+
+        // --- ТВОЙ КОД (Обработка входа) ---
+        auth.getRedirectResult()
+            .then((result) => {
+                if (result && result.user) {
+                    localStorage.setItem('user_name', result.user.displayName);
+                    window.location.reload(); // Просто обновляем, чтобы чат переключился на ввод
+                }
+            })
+            .catch((error) => console.error("Ошибка:", error));
+
+        auth.onAuthStateChanged((user) => {
+            const inputContainer = document.getElementById('side-input-container');
+            if (user) {
+                localStorage.setItem('user_name', user.displayName);
+                document.getElementById('login-section').style.display = 'none';
+                
+                // Даем возможность писать
+                inputContainer.innerHTML = `
+                    <div class="flex gap-2">
+                        <input type="text" id="sideInput" placeholder="Пиши..." class="w-full bg-white/10 border-none rounded-full px-4 py-2 text-sm outline-none">
+                        <button onclick="sendMsg()" class="text-blue-500">↑</button>
+                    </div>
+                `;
+            } else {
+                // Если гость - показываем кнопку регистрации в чате
+                inputContainer.innerHTML = `<a href="#" onclick="loginWithGoogle()" class="block text-center text-xs text-blue-400 font-bold">ВОЙТИ, ЧТОБЫ ПИСАТЬ</a>`;
+            }
+        });
+
+        function loginWithGoogle() {
+            auth.signInWithRedirect(provider);
+        }
+
+        // --- ЛОГИКА ЧАТА (Видна всем всегда) ---
+        db.ref("messages").limitToLast(20).on("child_added", (snapshot) => {
+            const data = snapshot.val();
+            const msgDiv = document.createElement('div');
+            msgDiv.className = "msg-bubble";
+            msgDiv.innerHTML = `<div class="text-blue-400 text-[10px] font-bold">${data.username}</div><div>${data.message}</div>`;
+            document.getElementById('side-messages').appendChild(msgDiv);
+            document.getElementById('side-messages').scrollTop = document.getElementById('side-messages').scrollHeight;
+        });
+
+        function sendMsg() {
+            const input = document.getElementById('sideInput');
+            const name = localStorage.getItem('user_name');
+            if (input.value.trim() !== "") {
+                db.ref("messages").push().set({
+                    username: name,
+                    message: input.value,
+                    timestamp: Date.now()
+                });
+                input.value = "";
+            }
+        }
+    </script>
+</body>
+</html>
