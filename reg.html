@@ -3,104 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Регистрация — ГЕРОИ ВЕЧНОСТЬ</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-
+    <title>Герои Вечности | Регистрация</title>
     <style>
-        body { background: #0b0b0b; color: white; font-family: sans-serif; }
-        .reg-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(212, 175, 55, 0.1);
-            backdrop-filter: blur(10px);
+        body {
+            background: #0f0f0f;
+            color: #d4af37;
+            font-family: 'Verdana', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-image: radial-gradient(circle, #1a1a1a 0%, #000 100%);
         }
-        .form-input {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 12px;
-            border-radius: 8px;
-            width: 100%;
-            outline: none;
-            transition: 0.3s;
-            color: white;
+
+        .reg-box {
+            background: #1c1c1c;
+            padding: 40px;
+            border: 2px solid #d4af37;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.2);
+            text-align: center;
+            width: 320px;
         }
-        .form-input:focus { border-color: #d4af37; }
-        .btn-gold {
-            background: #d4af37;
-            color: black;
-            font-weight: bold;
-            padding: 12px;
-            border-radius: 8px;
+
+        h2 {
             text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+
+        p {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 25px;
+        }
+
+        input {
             width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            background: #2a2a2a;
+            border: 1px solid #444;
+            border-radius: 5px;
+            color: white;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            border-color: #f1c40f;
+            outline: none;
+        }
+
+        .btn-reg {
+            width: 100%;
+            padding: 15px;
+            background: #d4af37;
+            color: #121212;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            text-transform: uppercase;
             cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-reg:hover {
+            background: #f1c40f;
+            box-shadow: 0 0 15px #f1c40f;
+            transform: translateY(-2px);
+        }
+
+        .links {
+            margin-top: 20px;
+            font-size: 12px;
+        }
+
+        .links a {
+            color: #888;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .links a:hover {
+            color: #d4af37;
         }
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-6">
+<body>
 
-    <div class="reg-card max-w-sm w-full p-8 rounded-2xl">
-        <h1 class="text-xl font-black text-center mb-8 uppercase tracking-widest text-[#d4af37]">Регистрация</h1>
+<div class="reg-box">
+    <h2>Новый Герой</h2>
+    <p>Начните свой путь в Вечности</p>
+    
+    <form action="chat.html">
+        <input type="text" placeholder="Придумайте имя" required>
+        <input type="email" placeholder="Ваш E-mail" required>
+        <input type="password" placeholder="Придумайте пароль" required>
+        <input type="password" placeholder="Повторите пароль" required>
+        
+        <button type="submit" class="btn-reg">Создать Персонажа</button>
+    </form>
 
-        <form id="regForm" class="space-y-4">
-            <div>
-                <label class="block text-[10px] uppercase text-gray-500 mb-1">Имя (для чата)</label>
-                <input type="text" id="regName" required placeholder="Ваш ник" class="form-input">
-            </div>
-            <div>
-                <label class="block text-[10px] uppercase text-gray-500 mb-1">Почта (E-mail)</label>
-                <input type="email" id="regEmail" required placeholder="mail@example.com" class="form-input">
-            </div>
-            <div>
-                <label class="block text-[10px] uppercase text-gray-500 mb-1">Пароль (мин. 6 знаков)</label>
-                <input type="password" id="regPass" required placeholder="••••••••" class="form-input">
-            </div>
-
-            <button type="submit" class="btn-gold">Создать аккаунт</button>
-        </form>
-
-        <div class="text-center mt-6">
-            <a href="login.html" class="text-xs text-[#d4af37] underline">Уже есть аккаунт? Войти</a>
-        </div>
+    <div class="links">
+        <a href="login.html">Уже есть герой? Войти</a><br><br>
+        <a href="index.html">Вернуться к истокам (На главную)</a>
     </div>
+</div>
 
-    <script>
-        // ТВОЙ КОНФИГ
-        const firebaseConfig = {
-            apiKey: "AIzaSyB7bTin28New3YE4GsgTjcJnzllzJn_-YI",
-            authDomain: "geroivechnost.firebaseapp.com",
-            databaseURL: "https://geroivechnost-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "geroivechnost",
-            storageBucket: "geroivechnost.firebasestorage.app",
-            messagingSenderId: "571001236869",
-            appId: "1:571001236869:web:26d2692cff6b4c49ada8ec"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-
-        document.getElementById('regForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const email = document.getElementById('regEmail').value;
-            const pass = document.getElementById('regPass').value;
-            const name = document.getElementById('regName').value;
-
-            // Создаем пользователя
-            auth.createUserWithEmailAndPassword(email, pass)
-                .then((userCredential) => {
-                    // Успешно! Сохраняем ник и в чат
-                    localStorage.setItem('user_name', name);
-                    alert('Аккаунт создан успешно!');
-                    window.location.href = 'chat.html';
-                })
-                .catch((error) => {
-                    // Ошибка (например, пароль меньше 6 символов)
-                    alert("Ошибка: " + error.message);
-                });
-        });
-    </script>
 </body>
 </html>
