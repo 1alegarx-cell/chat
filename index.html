@@ -17,9 +17,10 @@
             color: white;
             min-height: 100vh;
             margin-right: 300px; /* Место под чат */
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
-        /* Тот самый "Стеклянный" стиль из фото */
+        /* Улучшенный Стеклянный дизайн чата */
         .glass-sidebar {
             position: fixed;
             top: 0;
@@ -27,13 +28,12 @@
             width: 300px;
             height: 100vh;
             background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(20px) saturate(160%);
-            -webkit-backdrop-filter: blur(20px) saturate(160%);
+            backdrop-filter: blur(25px) saturate(160%);
+            -webkit-backdrop-filter: blur(25px) saturate(160%);
             border-left: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             flex-direction: column;
             z-index: 1000;
-            font-family: sans-serif;
         }
 
         .side-header {
@@ -68,30 +68,38 @@
         #side-messages-flow {
             flex-grow: 1;
             overflow-y: auto;
-            padding: 20px;
+            padding: 15px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
         }
 
-        /* Стиль сообщения */
+        /* Стиль сообщения с аватаркой */
         .mini-msg {
-            background: rgba(255, 255, 255, 0.07);
+            background: rgba(255, 255, 255, 0.06);
             padding: 12px;
             border-radius: 18px;
-            font-size: 13px;
-            line-height: 1.4;
             border-bottom-left-radius: 4px;
             border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: 0.2s;
+        }
+
+        .mini-msg:hover { background: rgba(255, 255, 255, 0.1); }
+
+        .msg-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
         }
 
         .msg-author {
-            font-size: 10px;
-            font-weight: bold;
-            color: #007AFF;
-            margin-bottom: 4px;
+            font-size: 11px;
+            font-weight: 800;
             text-transform: uppercase;
         }
+
+        .msg-time { font-size: 9px; color: rgba(255, 255, 255, 0.3); }
 
         #side-input-bar {
             padding: 20px;
@@ -101,7 +109,7 @@
 
         .chat-input {
             width: 100%;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.08);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 20px;
             padding: 10px 15px;
@@ -119,12 +127,12 @@
 <body>
 
     <div class="p-10">
-        <h1 class="text-4xl font-bold mb-4 tracking-tight">Geroi Vechnost</h1>
-        <p class="text-gray-400">Добро пожаловать в мир вечных героев.</p>
+        <h1 class="text-5xl font-black mb-4 tracking-tighter italic">GEROI VECHNOST</h1>
+        <p class="text-gray-400 max-w-md text-lg">Мир, где каждый герой оставляет свой след. Общайся в реальном времени.</p>
         
         <div id="login-section" class="mt-10">
-            <button onclick="loginWithGoogle()" class="bg-blue-600 px-8 py-3 rounded-full font-bold hover:bg-blue-700 transition shadow-lg shadow-blue-900/20">
-                Войти через Google
+            <button onclick="loginWithGoogle()" class="bg-blue-600 px-10 py-4 rounded-full font-bold hover:bg-blue-700 transition shadow-2xl shadow-blue-500/20 uppercase text-sm tracking-widest">
+                Присоединиться к Героям
             </button>
         </div>
     </div>
@@ -133,7 +141,7 @@
         <div class="side-header">
             <div class="live-indicator">
                 <span class="dot"></span>
-                LIVE CHAT
+                LIVE STREAM
             </div>
         </div>
 
@@ -161,70 +169,31 @@
         const db = firebase.database();
         const provider = new firebase.auth.GoogleAuthProvider();
 
-        // 1. Ловим результат входа
+        // 1. Обработка входа Google
         auth.getRedirectResult().then((result) => {
             if (result && result.user) {
                 localStorage.setItem('user_name', result.user.displayName);
+                localStorage.setItem('user_photo', result.user.photoURL);
                 window.location.reload();
             }
         });
 
-        // 2. Следим за состоянием пользователя
+        // 2. Статус пользователя
         auth.onAuthStateChanged((user) => {
             const inputBar = document.getElementById('side-input-bar');
             if (user) {
                 localStorage.setItem('user_name', user.displayName);
+                localStorage.setItem('user_photo', user.photoURL);
                 document.getElementById('login-section').style.display = 'none';
                 
                 inputBar.innerHTML = `
                     <div class="flex gap-2">
-                        <input type="text" id="sideInput" placeholder="Ваше сообщение..." class="chat-input">
-                        <button onclick="sendMsg()" class="bg-blue-600 w-10 h-10 rounded-full flex items-center justify-center shrink-0">↑</button>
+                        <input type="text" id="sideInput" placeholder="Написать героям..." class="chat-input">
+                        <button onclick="sendMsg()" class="bg-blue-600 w-10 h-10 rounded-full flex items-center justify-center shrink-0 shadow-lg shadow-blue-500/40">↑</button>
                     </div>
                 `;
                 
-                // Отправка по Enter
                 document.getElementById('sideInput').addEventListener('keypress', (e) => {
                     if (e.key === 'Enter') sendMsg();
                 });
-            } else {
-                inputBar.innerHTML = `<button onclick="loginWithGoogle()" class="w-full text-center text-xs text-blue-400 font-bold py-2 border border-blue-400/30 rounded-lg hover:bg-blue-400/10">ВОЙТИ, ЧТОБЫ ПИСАТЬ</button>`;
-            }
-        });
-
-        function loginWithGoogle() {
-            auth.signInWithRedirect(provider);
-        }
-
-        // 3. Чат в реальном времени
-        db.ref("messages").limitToLast(20).on("child_added", (snapshot) => {
-            const data = snapshot.val();
-            const flow = document.getElementById('side-messages-flow');
-            
-            const msgDiv = document.createElement('div');
-            msgDiv.className = "mini-msg";
-            msgDiv.innerHTML = `
-                <div class="msg-author">${data.username}</div>
-                <div>${data.message}</div>
-            `;
-            
-            flow.appendChild(msgDiv);
-            flow.scrollTop = flow.scrollHeight;
-        });
-
-        // 4. Функция отправки
-        function sendMsg() {
-            const input = document.getElementById('sideInput');
-            const name = localStorage.getItem('user_name');
-            if (input.value.trim() !== "") {
-                db.ref("messages").push().set({
-                    username: name,
-                    message: input.value,
-                    timestamp: Date.now()
-                });
-                input.value = "";
-            }
-        }
-    </script>
-</body>
-</html>
+            } else
