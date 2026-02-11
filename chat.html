@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Чат | Geroi Vechnost</title>
+    <title>Geroi Vechnost | Premium Chat</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -11,233 +11,127 @@
     <style>
         body {
             font-family: 'SF Pro Display', sans-serif;
-            background: linear-gradient(135deg, #1A0A47 0%, #3C1E7A 100%); /* Тот же фон, что и на входе */
-            display: flex;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
             height: 100vh;
             overflow: hidden;
-            position: relative;
-        }
-        body::before { /* Эффект "плазмы" на фоне */
-            content: '';
-            position: absolute;
-            top: -20%; left: -20%;
-            width: 140%; height: 140%;
-            background: radial-gradient(circle at 20% 80%, rgba(100, 50, 200, 0.3) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 20%, rgba(200, 50, 100, 0.3) 0%, transparent 50%);
-            animation: backgroundShift 20s infinite alternate;
-            z-index: 0;
-        }
-        @keyframes backgroundShift {
-            0% { transform: scale(1) rotate(0deg); opacity: 0.8; }
-            50% { transform: scale(1.1) rotate(5deg); opacity: 1; }
-            100% { transform: scale(1) rotate(0deg); opacity: 0.8; }
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        /* Главный контейнер чата */
-        .chat-container {
-            background: rgba(255, 255, 255, 0.08); /* Чуть светлее для прозрачности */
-            backdrop-filter: blur(25px); /* Сильное размытие */
-            border: 1px solid rgba(255, 255, 255, 0.15); /* Тонкая светлая рамка */
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); /* Глубокая тень */
-            border-radius: 20px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            z-index: 1; /* Поверх фона */
+        /* Эффект матового стекла (iOS Glassmorphism) */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
 
         /* Боковое меню */
         .sidebar {
             width: 280px;
-            background: rgba(255, 255, 255, 0.05); /* Еще более прозрачное */
-            backdrop-filter: blur(20px);
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
-            transform: translateX(-100%); /* Изначально скрыто */
-            transition: transform 0.3s ease-out;
             position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            z-index: 50; /* Поверх всего */
+            left: 0; top: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(30px);
+            transform: translateX(-100%);
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 100;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
         }
         .sidebar.open { transform: translateX(0); }
-        .sidebar-overlay {
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 40;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease-out;
-        }
-        .sidebar-overlay.open { opacity: 1; pointer-events: all; }
 
-        /* Сообщения */
-        .message-bubble {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 18px;
-            padding: 10px 15px;
-            color: white;
+        .overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(4px);
+            z-index: 90;
+        }
+        .overlay.open { display: block; }
+
+        /* Сообщения в стиле Telegram/iOS */
+        #chat-window::-webkit-scrollbar { width: 4px; }
+        #chat-window::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+
+        .msg {
             max-width: 75%;
+            padding: 10px 16px;
+            border-radius: 20px;
+            margin-bottom: 8px;
             position: relative;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            font-size: 15px;
+            line-height: 1.4;
         }
-        .message-bubble.sent {
-            background: linear-gradient(135deg, #007AFF, #00C6FF); /* iOS синий */
+        .msg.sent {
+            background: linear-gradient(145deg, #007AFF, #0056D2);
+            color: white;
             align-self: flex-end;
-            margin-left: auto;
-            border-bottom-right-radius: 4px; /* Уголок */
-            box-shadow: 0 1px 3px rgba(0, 122, 255, 0.2);
+            border-bottom-right-radius: 4px;
         }
-        .message-bubble.received {
-            background: rgba(255, 255, 255, 0.15); /* Темнее для входящих */
+        .msg.received {
+            background: rgba(255, 255, 255, 0.12);
+            color: white;
             align-self: flex-start;
-            margin-right: auto;
-            border-bottom-left-radius: 4px; /* Уголок */
-            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+            border-bottom-left-radius: 4px;
         }
-        .message-author {
-            font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.6);
-            margin-bottom: 4px;
-        }
-        .message-content {
-            font-size: 0.95rem;
-            line-height: 1.3;
-        }
-        .message-timestamp {
-            font-size: 0.65rem;
-            color: rgba(255, 255, 255, 0.4);
-            margin-top: 4px;
-            text-align: right;
-        }
+        .msg-info { font-size: 10px; opacity: 0.6; margin-top: 4px; text-align: right; }
+        .msg-author { font-size: 11px; font-weight: 600; color: #d4af37; margin-bottom: 2px; }
 
         /* Поле ввода */
-        .input-area {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(15px);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .input-field {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+        .input-box {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px;
+            padding: 10px 20px;
             color: white;
-            padding: 10px 15px;
-            border-radius: 22px; /* Овальная форма */
+            width: 100%;
             outline: none;
-            transition: all 0.2s ease;
+            transition: 0.3s;
         }
-        .input-field:focus {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(255, 255, 255, 0.4);
-        }
-        .send-button {
-            background: linear-gradient(145deg, #007AFF, #00C6FF);
-            color: white;
-            border-radius: 50%; /* Круглая кнопка */
-            width: 44px;
-            height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 2px 10px rgba(0, 122, 255, 0.3);
-            transition: all 0.2s ease;
-        }
-        .send-button:hover {
-            transform: translateY(-1px) scale(1.05);
-            box-shadow: 0 4px 15px rgba(0, 122, 255, 0.4);
-        }
-
-        /* Аватары */
-        .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(45deg, #d4af37, #f1c40f);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 1.1rem;
-            text-transform: uppercase;
-        }
-
-        /* Адаптивность для мобильных */
-        @media (max-width: 768px) {
-            .chat-container { border-radius: 0; }
-            .sidebar { width: 80%; }
-        }
+        .input-box:focus { background: rgba(255, 255, 255, 0.12); border-color: #007AFF; }
     </style>
 </head>
-<body class="flex items-center justify-center p-0 md:p-6">
+<body>
 
-    <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+    <div id="overlay" class="overlay" onclick="toggleSidebar()"></div>
 
-    <aside id="sidebar" class="sidebar h-full flex flex-col pt-6 pb-4 px-4">
-        <div class="flex items-center gap-3 mb-8">
-            <div class="avatar text-xl flex-shrink-0">JS</div>
-            <div class="flex-grow">
-                <div id="sidebar-username" class="text-white font-semibold text-lg">Загрузка...</div>
-                <div class="text-gray-400 text-sm">Online</div>
+    <aside id="sidebar" class="sidebar p-6 flex flex-col">
+        <div class="flex items-center gap-4 mb-10">
+            <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-yellow-400 to-orange-500 flex items-center justify-center font-bold text-white shadow-lg" id="avatar-circle">?</div>
+            <div>
+                <h3 id="sidebar-username" class="text-white font-bold">User</h3>
+                <p class="text-green-400 text-xs">● Online</p>
             </div>
         </div>
-        <nav class="flex-grow space-y-3">
-            <a href="#" class="flex items-center gap-3 py-3 px-4 rounded-xl text-white hover:bg-white/10 transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                Мой профиль
-            </a>
-            <a href="#" class="flex items-center gap-3 py-3 px-4 rounded-xl text-white hover:bg-white/10 transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
-                Настройки чата
-            </a>
-            <a href="#" class="flex items-center gap-3 py-3 px-4 rounded-xl text-white hover:bg-white/10 transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.206 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.794 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.794 5 16.5 5s3.332.477 4.5 1.253v13C19.832 18.477 18.206 18 16.5 18s-3.332.477-4.5 1.253"></path></svg>
-                Приватный канал
-            </a>
+        <nav class="space-y-4 flex-grow">
+            <button class="w-full text-left text-gray-300 hover:text-white flex items-center gap-3 transition"><span>👤</span> Профиль</button>
+            <button class="w-full text-left text-gray-300 hover:text-white flex items-center gap-3 transition"><span>⚙️</span> Настройки</button>
         </nav>
-        <button onclick="logout()" class="flex items-center justify-center gap-3 py-3 px-4 rounded-xl text-red-400 hover:bg-red-900/20 transition-colors mt-auto">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-            Выйти
-        </button>
+        <button onclick="logout()" class="w-full py-3 bg-red-500/20 text-red-400 rounded-xl hover:bg-red-500/30 transition">Выйти</button>
     </aside>
 
-    <main class="chat-container flex-grow h-[90vh] w-full md:max-w-4xl lg:max-w-5xl">
-        <header class="flex items-center p-4 border-b border-white/10 bg-black/50">
-            <button onclick="toggleSidebar()" class="text-white mr-4 focus:outline-none">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-            </button>
-            <h2 class="text-xl font-semibold text-white flex-grow">Geroi Vechnost | Чат</h2>
-            <button class="text-white ml-auto p-2 rounded-full hover:bg-white/10 transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-            </button>
+    <main class="glass-panel w-full h-full md:w-[900px] md:h-[650px] flex flex-col relative overflow-hidden">
+        <header class="p-5 flex items-center border-b border-white/10">
+            <button onclick="toggleSidebar()" class="text-2xl mr-4">≡</button>
+            <h2 class="font-bold text-white tracking-wide">GEROI VECHNOST</h2>
         </header>
 
-        <div id="chat-window" class="flex-grow p-4 md:p-6 overflow-y-auto flex flex-col space-y-4">
-            </div>
+        <div id="chat-window" class="flex-grow p-6 overflow-y-auto flex flex-col"></div>
 
-        <div class="input-area p-4 flex items-center gap-3">
-            <input type="text" id="messageInput" placeholder="Напишите сообщение..." class="input-field flex-grow text-sm">
-            <button onclick="sendMessage()" class="send-button">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-            </button>
-        </div>
+        <footer class="p-5 bg-black/20">
+            <div class="flex gap-3">
+                <input type="text" id="messageInput" placeholder="Сообщение..." class="input-box">
+                <button onclick="sendMessage()" class="bg-[#007AFF] text-white px-6 rounded-full font-bold hover:scale-105 transition active:scale-95">↑</button>
+            </div>
+        </footer>
     </main>
 
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyB7bTin28New3YE4GsgTjcJnzllzJn_-YI",
             authDomain: "geroivechnost.firebaseapp.com",
-            databaseURL: "https://geroivechnost-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "geroivechnost",
-            storageBucket: "geroivechnost.firebasestorage.app",
-            messagingSenderId: "571001236869",
-            appId: "1:571001236869:web:26d2692cff6b4c49ada8ec"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        const userName = localStorage.getItem('user_name') || 'Аноним';
-
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('sidebar-username').innerText
+            databaseURL: "https://geroivechnost
