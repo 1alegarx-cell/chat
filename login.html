@@ -1,176 +1,46 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Вход | Geroi Vechnost</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'SF Pro Display', sans-serif;
-            background: linear-gradient(135deg, #1A0A47 0%, #3C1E7A 100%); /* Глубокий фиолетовый градиент */
-            overflow: hidden;
-            position: relative;
-        }
-        body::before { /* Эффект "плазмы" на фоне */
-            content: '';
-            position: absolute;
-            top: -20%; left: -20%;
-            width: 140%; height: 140%;
-            background: radial-gradient(circle at 20% 80%, rgba(100, 50, 200, 0.3) 0%, transparent 50%),
-                        radial-gradient(circle at 80% 20%, rgba(200, 50, 100, 0.3) 0%, transparent 50%);
-            animation: backgroundShift 20s infinite alternate;
-            z-index: 0;
-        }
-        @keyframes backgroundShift {
-            0% { transform: scale(1) rotate(0deg); opacity: 0.8; }
-            50% { transform: scale(1.1) rotate(5deg); opacity: 1; }
-            100% { transform: scale(1) rotate(0deg); opacity: 0.8; }
-        }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.08); /* Чуть светлее для прозрачности */
-            backdrop-filter: blur(25px); /* Сильное размытие */
-            border: 1px solid rgba(255, 255, 255, 0.15); /* Тонкая светлая рамка */
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); /* Глубокая тень */
-            border-radius: 20px;
-            z-index: 1;
-            position: relative;
-        }
-        .input-glass {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 12px 18px;
-            border-radius: 12px;
-            transition: all 0.3s ease;
-        }
-        .input-glass::placeholder { color: rgba(255, 255, 255, 0.5); }
-        .input-glass:focus {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(255, 255, 255, 0.4);
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
-        }
-        .btn-ios {
-            background: linear-gradient(145deg, #007AFF, #00C6FF); /* Сине-голубой градиент iOS */
-            color: white;
-            font-weight: 600;
-            padding: 14px 25px;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0, 122, 255, 0.3);
-            transition: all 0.3s ease;
-        }
-        .btn-ios:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 122, 255, 0.4);
-        }
-        .btn-google-ios {
-            background: rgba(255, 255, 255, 0.15); /* Прозрачный белый для кнопки Google */
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            color: white;
-            font-weight: 500;
-            padding: 12px 20px;
-            border-radius: 12px;
-            transition: all 0.3s ease;
-        }
-        .btn-google-ios:hover {
-            background: rgba(255, 255, 255, 0.25);
-            border-color: rgba(255, 255, 255, 0.4);
-        }
-        .text-ios-link {
-            color: rgba(255, 255, 255, 0.6);
-            transition: color 0.3s ease;
-        }
-        .text-ios-link:hover {
-            color: white;
-            text-decoration: underline;
-        }
-    </style>
-</head>
-<body class="flex items-center justify-center min-h-screen">
+<script>
+    // 1. Твой конфиг (оставляем как есть)
+    const firebaseConfig = {
+        apiKey: "AIzaSyB7bTin28New3YE4GsgTjcJnzllzJn_-YI",
+        authDomain: "geroivechnost.firebaseapp.com",
+        databaseURL: "https://geroivechnost-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "geroivechnost",
+        storageBucket: "geroivechnost.firebasestorage.app",
+        messagingSenderId: "571001236869",
+        appId: "1:571001236869:web:26d2692cff6b4c49ada8ec"
+    };
 
-    <div class="glass-card p-8 sm:p-10 rounded-3xl max-w-sm w-full">
-        <div class="text-center mb-10">
-            <h1 class="text-3xl font-bold tracking-tight text-white mb-2">Geroi Vechnost</h1>
-            <p class="text-gray-400 text-sm font-light">Авторизация аккаунта</p>
-        </div>
+    // 2. Инициализация Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const provider = new firebase.auth.GoogleAuthProvider();
 
-        <button onclick="signInWithGoogle()" class="btn-google-ios w-full flex items-center justify-center gap-3 shadow-md mb-6">
-            <svg class="w-5 h-5" viewBox="0 0 24 24">
-                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
-                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.66l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-            </svg>
-            <span class="text-sm">Продолжить через Google</span>
-        </button>
-
-        <div class="flex items-center my-6">
-            <div class="flex-grow border-t border-white/10"></div>
-            <span class="mx-4 text-xs text-gray-500 font-medium">или</span>
-            <div class="flex-grow border-t border-white/10"></div>
-        </div>
-
-        <form id="loginForm" class="space-y-4">
-            <div>
-                <input type="text" id="username" required placeholder="Имя пользователя" class="input-glass w-full">
-            </div>
-            <div>
-                <input type="password" required placeholder="Пароль" class="input-glass w-full">
-            </div>
-            <button type="submit" class="btn-ios w-full mt-6">
-                Войти
-            </button>
-        </form>
-
-        <div class="mt-8 text-center text-sm">
-            <a href="reg.html" class="text-ios-link hover:text-white block mb-2">Создать новый аккаунт</a>
-            <a href="index.html" class="text-ios-link opacity-60 hover:opacity-100 text-xs">← На главную</a>
-        </div>
-    </div>
-
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyB7bTin28New3YE4GsgTjcJnzllzJn_-YI",
-            authDomain: "geroivechnost.firebaseapp.com",
-            databaseURL: "https://geroivechnost-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "geroivechnost",
-            storageBucket: "geroivechnost.firebasestorage.app",
-            messagingSenderId: "571001236869",
-            appId: "1:571001236869:web:26d2692cff6b4c49ada8ec"
-        };
-
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-
-        async function signInWithGoogle() {
-            try {
-                const provider = new firebase.auth.GoogleAuthProvider();
-                const result = await auth.signInWithPopup(provider);
+    // 3. ТОТ САМЫЙ КОД (Ловим результат входа после редиректа)
+    auth.getRedirectResult()
+        .then((result) => {
+            if (result && result.user) {
+                console.log("Вход выполнен через Google:", result.user.displayName);
+                // Сохраняем имя в память браузера
                 localStorage.setItem('user_name', result.user.displayName);
-                window.location.replace('chat.html');
-            } catch (error) {
-                console.error("Auth Error:", error);
-                alert("Ошибка входа: " + error.message);
+                // Мгновенно переходим в чат
+                window.location.href = 'chat.html'; 
             }
+        })
+        .catch((error) => {
+            console.error("Ошибка при возврате от Google:", error);
+        });
+
+    // 4. Проверка: если пользователь уже вошел ранее
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            localStorage.setItem('user_name', user.displayName);
+            // Если хочешь, чтобы при заходе на страницу логина залогиненных сразу кидало в чат:
+            // window.location.href = 'chat.html';
         }
+    });
 
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                localStorage.setItem('user_name', user.displayName);
-                window.location.replace('chat.html');
-            }
-        });
-
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const name = document.getElementById('username').value;
-            localStorage.setItem('user_name', name);
-            window.location.replace('chat.html');
-        });
-    </script>
-</body>
-</html>
+    // 5. Функция для кнопки "Войти через Google"
+    function loginWithGoogle() {
+        auth.signInWithRedirect(provider);
+    }
+</script>
