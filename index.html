@@ -1,17 +1,3 @@
-Я понял задачу. Убираем боковую панель (Стену памяти) и настраиваем кнопки «Книга Памяти» и «Вписать Имя», чтобы они открывали соответствующие разделы.
-
-Поскольку на твоем устройстве блоки кода отображаются нестабильно, я отправляю обновленный код **обычным текстом**.
-
-**Что изменилось:**
-
-1. **Убрана правая панель:** Теперь мемориал занимает весь экран, а контент центрирован.
-2. **Рабочие кнопки:** Я добавил простые всплывающие окна (модалки) для «Книги Памяти» и «Вписать Имя», чтобы сайт стал функциональным.
-3. **Оптимизация:** Души теперь летают по всему экрану без ограничений.
-
-Скопируй текст ниже и замени им всё содержимое `index.html`:
-
----
-
 <!DOCTYPE html>
 
 <html lang="ru">
@@ -19,11 +5,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ГЕРОИ ВЕЧНОСТЬ | Мемориал</title>
-<script src="[https://cdn.tailwindcss.com]()"></script>
+<script src="https://cdn.tailwindcss.com"></script>
 <style>
-@import url('[https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Inter:wght@300;400;700;900&display=swap]()');
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Inter:wght@300;400;700;900&display=swap');
 
-```
     body { 
         background-color: #050508; 
         color: white; 
@@ -105,14 +90,10 @@
         text-align: center;
     }
 </style>
-
-```
-
 </head>
 <body>
 <canvas id="memorial-canvas"></canvas>
 
-```
 <!-- Main UI -->
 <main class="relative z-10 flex flex-col items-center justify-center min-h-screen text-center px-6">
     <div class="select-none mb-12 transform scale-90 md:scale-100">
@@ -226,8 +207,5 @@
     window.addEventListener('resize', init);
     init(); animate();
 </script>
-
-```
-
 </body>
 </html>
