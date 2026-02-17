@@ -1,13 +1,22 @@
+Я обновил код, изменив цвет надписи «ОФИЦИАЛЬНЫЙ МЕМОРИАЛ» на синий. Теперь она имеет стильное синее свечение, которое гармонирует с общей атмосферой.
+
+Скопируй этот текст и замени им содержимое своего файла index.html:
+
 <!DOCTYPE html>
 
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ГЕРОИ ВЕЧНОСТЬ | Мемориал</title>
-<script src="https://cdn.tailwindcss.com"></script>
+<title>ГЕРОИ ВЕЧНОСТЬ | Официальный Мемориал</title>
+
+<!-- Firebase SDK -->
+<script src="[https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js](https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js)"></script>
+<script src="[https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js](https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js)"></script>
+
+<script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Inter:wght@300;400;700;900&display=swap');
+    @import url('[https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Inter:wght@300;400;700;900&display=swap](https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Inter:wght@300;400;700;900&display=swap)');
 
     body { 
         background-color: #050508; 
@@ -38,6 +47,13 @@
         -webkit-text-fill-color: transparent; 
     }
 
+    /* Синий цвет для надписи Официальный Мемориал */
+    .text-official {
+        color: #3b82f6; /* Tailwind blue-500 */
+        text-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+        letter-spacing: 0.8em;
+    }
+
     #memorial-canvas { 
         position: fixed; 
         top: 0; 
@@ -59,7 +75,7 @@
         color: rgba(255, 255, 255, 0.8); 
         cursor: pointer;
         position: relative;
-        overflow: hidden;
+        z-index: 20;
     }
 
     .btn-main:hover { 
@@ -70,7 +86,6 @@
         box-shadow: 0 10px 30px rgba(255,255,255,0.1);
     }
 
-    /* Modal Styles */
     .modal {
         display: none;
         position: fixed;
@@ -89,17 +104,38 @@
         width: 90%;
         text-align: center;
     }
+
+    .user-badge {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: rgba(255,255,255,0.05);
+        padding: 8px 16px;
+        border-radius: 50px;
+        border: 1px solid rgba(255,255,255,0.1);
+        backdrop-filter: blur(5px);
+    }
 </style>
 </head>
 <body>
 <canvas id="memorial-canvas"></canvas>
+
+<!-- User Badge -->
+<div id="user-status" class="hidden user-badge">
+    <span id="user-name" class="text-[10px] uppercase tracking-widest text-white/60"></span>
+    <button onclick="logout()" class="text-[9px] text-red-500 uppercase font-bold hover:text-white transition-colors">Выйти</button>
+</div>
 
 <!-- Main UI -->
 <main class="relative z-10 flex flex-col items-center justify-center min-h-screen text-center px-6">
     <div class="select-none mb-12 transform scale-90 md:scale-100">
         <h1 class="military-text text-hero text-[80px] md:text-[140px]">ГЕРОИ</h1>
         <div class="py-4">
-            <span class="text-xl font-light tracking-[1.2em] uppercase text-white/40">Бессмертный полк</span>
+            <span class="text-xl font-bold tracking-[1.2em] uppercase text-official">ОФИЦИАЛЬНЫЙ МЕМОРИАЛ</span>
         </div>
         <h1 class="military-text text-eternity text-[80px] md:text-[140px]">ВЕЧНОСТЬ</h1>
     </div>
@@ -110,12 +146,12 @@
 
     <div class="flex flex-col md:flex-row gap-8 justify-center items-center">
         <button onclick="openModal('book')" class="btn-main">Книга Памяти</button>
-        <button onclick="openModal('add')" class="btn-main" style="border-color: #ff4d4d; color: #ff4d4d;">Вписать Имя</button>
+        <button onclick="checkAuthAndOpen()" class="btn-main" style="border-color: #ff4d4d; color: #ff4d4d;">Вписать Имя</button>
     </div>
 </main>
 
-<!-- Modals -->
-<div id="modal-book" class="modal" onclick="closeModal(event)">
+<!-- Modal: Book -->
+<div id="modal-book" class="modal" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
         <h2 class="military-text text-hero text-4xl mb-6">Книга Памяти</h2>
         <p class="text-gray-400 mb-8 font-light">Раздел находится в разработке. Скоро здесь будет доступен полный список героев.</p>
@@ -123,11 +159,14 @@
     </div>
 </div>
 
-<div id="modal-add" class="modal" onclick="closeModal(event)">
+<!-- Modal: Auth -->
+<div id="modal-auth" class="modal" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
-        <h2 class="military-text text-eternity text-4xl mb-6">Вписать Имя</h2>
-        <p class="text-gray-400 mb-8 font-light">Пожалуйста, подготовьте данные и фотографию героя. Форма подачи заявок откроется в ближайшее время.</p>
-        <button onclick="closeModal()" class="btn-main">Закрыть</button>
+        <h2 class="military-text text-eternity text-4xl mb-6">Авторизация</h2>
+        <p class="text-gray-400 mb-8 font-light">Пожалуйста, войдите через Google, чтобы вписать имя героя в мемориал.</p>
+        <button onclick="login()" class="bg-white text-black px-12 py-4 font-bold uppercase text-[10px] tracking-widest hover:bg-red-600 hover:text-white transition-all">
+            Войти через Google
+        </button>
     </div>
 </div>
 
@@ -196,13 +235,43 @@
         requestAnimationFrame(animate); 
     }
 
-    function openModal(id) {
-        document.getElementById('modal-' + id).style.display = 'flex';
+    // --- FIREBASE LOGIC ---
+    const firebaseConfig = { 
+        apiKey: "AIzaSyB7bTin28New3YE4GsgTjcJnzllzJn_-YI", 
+        authDomain: "geroivechnost.firebaseapp.com", 
+        projectId: "geroivechnost", 
+        storageBucket: "geroivechnost.firebasestorage.app", 
+        messagingSenderId: "571001236869", 
+        appId: "1:571001236869:web:26d2692cff6b4c49ada8ec" 
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    function login() { auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider()); }
+    function logout() { auth.signOut(); }
+
+    function checkAuthAndOpen() {
+        if (auth.currentUser) {
+            alert("Форма подачи данных будет доступна в ближайшем обновлении.");
+        } else {
+            openModal('auth');
+        }
     }
 
-    function closeModal(e) {
-        document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
-    }
+    auth.onAuthStateChanged(user => {
+        const statusDiv = document.getElementById('user-status');
+        const userName = document.getElementById('user-name');
+        if (user) {
+            statusDiv.classList.remove('hidden');
+            userName.innerText = user.displayName;
+            closeModal();
+        } else {
+            statusDiv.classList.add('hidden');
+        }
+    });
+
+    function openModal(id) { document.getElementById('modal-' + id).style.display = 'flex'; }
+    function closeModal() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
 
     window.addEventListener('resize', init);
     init(); animate();
