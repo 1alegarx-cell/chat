@@ -4,16 +4,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ГЕРОИ ВЕЧНОСТЬ | Официальный Мемориал</title>
+<title>ГЕРОИ ВЕЧНОСТЬ | Мемориал</title>
 
-<!-- Firebase SDK -->
+<!-- Подключение Firebase -->
 <script src="[https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js](https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js)"></script>
 <script src="[https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js](https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js)"></script>
 
+<!-- Tailwind CSS -->
 <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
+
 <style>
     @import url('[https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Inter:wght@300;400;700;900&display=swap](https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Inter:wght@300;400;700;900&display=swap)');
-
+    
     body { 
         background-color: #050508; 
         color: white; 
@@ -63,7 +65,6 @@
         transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
         color: rgba(255, 255, 255, 0.8); 
         cursor: pointer;
-        position: relative;
         z-index: 20;
     }
 
@@ -81,15 +82,15 @@
         top: 0; left: 0; width: 100%; height: 100%;
         background: rgba(0,0,0,0.95);
         z-index: 1000;
-        backdrop-filter: blur(10px);
+        backdrop-filter: blur(15px);
         justify-content: center;
         align-items: center;
     }
     .modal-content {
         background: #0a0a0c;
-        border: 1px solid rgba(255,255,255,0.1);
-        padding: 40px;
-        max-width: 500px;
+        border: 1px solid rgba(255,255,255,0.05);
+        padding: 50px;
+        max-width: 600px;
         width: 90%;
         text-align: center;
     }
@@ -113,24 +114,22 @@
 <body>
 <canvas id="memorial-canvas"></canvas>
 
-<!-- User Badge -->
 <div id="user-status" class="hidden user-badge">
     <span id="user-name" class="text-[10px] uppercase tracking-widest text-white/60"></span>
-    <button onclick="logout()" class="text-[9px] text-red-500 uppercase font-bold hover:text-white transition-colors">Выйти</button>
+    <button onclick="logout()" class="text-[9px] text-red-500 uppercase font-bold hover:text-white">Выйти</button>
 </div>
 
-<!-- Main UI -->
 <main class="relative z-10 flex flex-col items-center justify-center min-h-screen text-center px-6">
-    <div class="select-none mb-12 transform scale-90 md:scale-100">
+    <div class="select-none mb-12">
         <h1 class="military-text text-hero text-[80px] md:text-[140px]">ГЕРОИ</h1>
         <div class="py-4">
-            <span class="text-xl font-light tracking-[1.2em] uppercase text-white/40">ОФИЦИАЛЬНЫЙ МЕМОРИАЛ</span>
+            <span class="text-xl font-light tracking-[1.2em] uppercase text-white/40">Бессмертный полк</span>
         </div>
         <h1 class="military-text text-eternity text-[80px] md:text-[140px]">ВЕЧНОСТЬ</h1>
     </div>
 
-    <p class="text-gray-500 font-light italic text-xl max-w-2xl mb-16 leading-relaxed">
-        «Души героев не уходят в небытие. <br> Они становятся светом, указывающим нам путь».
+    <p class="text-gray-500 font-light italic text-xl max-w-2xl mb-16">
+        «Души героев не уходят в небытие. Они становятся светом, указывающим путь».
     </p>
 
     <div class="flex flex-col md:flex-row gap-8 justify-center items-center">
@@ -139,20 +138,18 @@
     </div>
 </main>
 
-<!-- Modal: Book -->
 <div id="modal-book" class="modal" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
         <h2 class="military-text text-hero text-4xl mb-6">Книга Памяти</h2>
-        <p class="text-gray-400 mb-8 font-light">Раздел находится в разработке. Скоро здесь будет доступен полный список героев.</p>
-        <button onclick="closeModal()" class="btn-main">Закрыть</button>
+        <p class="text-gray-400 mb-8 font-light">Раздел находится в разработке.</p>
+        <button onclick="closeModal()" class="btn-main">Назад</button>
     </div>
 </div>
 
-<!-- Modal: Auth -->
 <div id="modal-auth" class="modal" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
         <h2 class="military-text text-eternity text-4xl mb-6">Авторизация</h2>
-        <p class="text-gray-400 mb-8 font-light">Пожалуйста, войдите через Google, чтобы вписать имя героя в мемориал.</p>
+        <p class="text-gray-400 mb-8 font-light">Пожалуйста, войдите через Google, чтобы продолжить.</p>
         <button onclick="login()" class="bg-white text-black px-12 py-4 font-bold uppercase text-[10px] tracking-widest hover:bg-red-600 hover:text-white transition-all">
             Войти через Google
         </button>
@@ -169,62 +166,45 @@
         reset() { 
             this.x = Math.random() * canvas.width; 
             this.y = canvas.height + 100; 
-            this.size = 1.5 + Math.random() * 2.5; 
-            this.speed = 0.3 + Math.random() * 0.6; 
+            this.size = 1.2 + Math.random() * 2; 
+            this.speed = 0.3 + Math.random() * 0.5; 
             this.opacity = 0; 
             this.osc = Math.random() * 100; 
             this.color = Math.random() > 0.85 ? '255, 60, 60' : '255, 255, 255'; 
         }
         update() { 
-            this.y -= this.speed; 
-            this.osc += 0.015; 
-            this.x += Math.sin(this.osc) * 0.4; 
-            if (this.y > canvas.height * 0.6) this.opacity = Math.min(0.5, this.opacity + 0.005);
+            this.y -= this.speed; this.osc += 0.015; this.x += Math.sin(this.osc) * 0.4; 
+            if (this.y > canvas.height * 0.5) this.opacity = Math.min(0.4, this.opacity + 0.005);
             else if (this.y < canvas.height * 0.2) this.opacity = Math.max(0, this.opacity - 0.005);
             if (this.y < -100) this.reset(); 
         }
         draw() { 
             if (this.opacity <= 0) return;
-            ctx.save(); 
-            ctx.globalAlpha = this.opacity;
-            const g = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 20);
+            ctx.save(); ctx.globalAlpha = this.opacity;
+            const g = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 25);
             g.addColorStop(0, `rgba(${this.color}, 0.8)`);
             g.addColorStop(1, `rgba(${this.color}, 0)`);
-            ctx.fillStyle = g;
-            ctx.beginPath(); ctx.arc(this.x, this.y, this.size * 20, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = g; ctx.beginPath(); ctx.arc(this.x, this.y, this.size * 25, 0, Math.PI*2); ctx.fill();
             ctx.restore(); 
         }
     }
 
     class Star {
-        constructor() { 
-            this.x = Math.random() * canvas.width; 
-            this.y = Math.random() * canvas.height; 
-            this.s = Math.random() * 1.2; 
-            this.b = Math.random() * Math.PI; 
-        }
-        draw() { 
-            this.b += 0.005; ctx.fillStyle = `rgba(255,255,255,${0.05 + Math.abs(Math.sin(this.b))*0.3})`;
-            ctx.beginPath(); ctx.arc(this.x, this.y, this.s, 0, Math.PI*2); ctx.fill(); 
-        }
+        constructor() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.s = Math.random() * 1; this.b = Math.random() * Math.PI; }
+        draw() { this.b += 0.005; ctx.fillStyle = `rgba(255,255,255,${0.05 + Math.abs(Math.sin(this.b))*0.2})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.s, 0, Math.PI*2); ctx.fill(); }
     }
 
     function init() { 
-        canvas.width = window.innerWidth; 
-        canvas.height = window.innerHeight; 
-        souls = Array.from({length: 50}, () => new Soul()); 
-        stars = Array.from({length: 200}, () => new Star()); 
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight; 
+        souls = Array.from({length: 40}, () => new Soul()); 
+        stars = Array.from({length: 150}, () => new Star()); 
     }
-    
     function animate() { 
-        ctx.fillStyle = '#050508';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        stars.forEach(s => s.draw()); 
-        souls.forEach(s => { s.update(); s.draw(); }); 
+        ctx.fillStyle = '#050508'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        stars.forEach(s => s.draw()); souls.forEach(s => { s.update(); s.draw(); }); 
         requestAnimationFrame(animate); 
     }
 
-    // --- FIREBASE LOGIC ---
     const firebaseConfig = { 
         apiKey: "AIzaSyB7bTin28New3YE4GsgTjcJnzllzJn_-YI", 
         authDomain: "geroivechnost.firebaseapp.com", 
@@ -236,27 +216,15 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
-    function login() { auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider()); }
+    function login() { const provider = new firebase.auth.GoogleAuthProvider(); auth.signInWithRedirect(provider); }
     function logout() { auth.signOut(); }
-
-    function checkAuthAndOpen() {
-        if (auth.currentUser) {
-            alert("Форма подачи данных будет доступна в ближайшем обновлении.");
-        } else {
-            openModal('auth');
-        }
-    }
+    function checkAuthAndOpen() { if (auth.currentUser) { openModal('book'); } else { openModal('auth'); } }
 
     auth.onAuthStateChanged(user => {
         const statusDiv = document.getElementById('user-status');
         const userName = document.getElementById('user-name');
-        if (user) {
-            statusDiv.classList.remove('hidden');
-            userName.innerText = user.displayName;
-            closeModal();
-        } else {
-            statusDiv.classList.add('hidden');
-        }
+        if (user) { statusDiv.classList.remove('hidden'); userName.innerText = user.displayName; closeModal(); }
+        else { statusDiv.classList.add('hidden'); }
     });
 
     function openModal(id) { document.getElementById('modal-' + id).style.display = 'flex'; }
