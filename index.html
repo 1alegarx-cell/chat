@@ -1,20 +1,18 @@
 <!DOCTYPE html>
-
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ГЕРОИ ВЕЧНОСТЬ | Мемориал</title>
 
-<!-- Подключение Firebase -->
-<script src="[https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js](https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js)"></script>
-<script src="[https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js](https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js)"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
-<!-- Tailwind CSS -->
-<script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
+<script src="https://cdn.tailwindcss.com"></script>
 
 <style>
-    @import url('[https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Inter:wght@300;400;700;900&display=swap](https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Inter:wght@300;400;700;900&display=swap)');
+    @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Inter:wght@300;400;700;900&display=swap');
     
     body { 
         background-color: #050508; 
@@ -25,6 +23,7 @@
         overflow: hidden; 
     }
 
+    /* Типографика */
     .military-text { 
         font-family: 'Oswald', sans-serif; 
         text-transform: uppercase; 
@@ -32,206 +31,68 @@
         line-height: 0.9; 
         filter: drop-shadow(0 0 30px rgba(0,0,0,1)); 
     }
-
     .text-hero { 
         background: linear-gradient(to bottom, #fff 40%, #999 100%); 
         -webkit-background-clip: text; 
         -webkit-text-fill-color: transparent; 
     }
-
     .text-eternity { 
         background: linear-gradient(to bottom, #ff4d4d 40%, #4a0000 100%); 
         -webkit-background-clip: text; 
         -webkit-text-fill-color: transparent; 
     }
 
+    /* Фон Canvas */
     #memorial-canvas { 
-        position: fixed; 
-        top: 0; 
-        left: 0; 
-        width: 100%; 
-        height: 100%; 
-        pointer-events: none; 
-        z-index: 1; 
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+        pointer-events: none; z-index: 1; 
     }
 
+    /* Элементы UI */
     .btn-main { 
-        background: transparent; 
+        background: rgba(0,0,0,0.3); 
         border: 1px solid rgba(255, 255, 255, 0.2); 
         padding: 14px 40px; 
         font-size: 12px; 
         text-transform: uppercase; 
         letter-spacing: 4px; 
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+        transition: all 0.3s ease; 
         color: rgba(255, 255, 255, 0.8); 
         cursor: pointer;
-        z-index: 20;
+        backdrop-filter: blur(4px);
     }
-
     .btn-main:hover { 
-        background: white; 
-        color: black; 
-        border-color: white; 
-        transform: translateY(-2px);
-        box-shadow: 0 10px 30px rgba(255,255,255,0.1);
+        background: white; color: black; border-color: white; 
+        transform: translateY(-2px); 
+        box-shadow: 0 0 20px rgba(255,255,255,0.2);
+    }
+    .btn-red:hover {
+        background: #ff4d4d; color: white; border-color: #ff4d4d;
+        box-shadow: 0 0 20px rgba(255, 77, 77, 0.4);
     }
 
+    /* Модальные окна */
     .modal {
         display: none;
-        position: fixed;
-        top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.95);
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.85);
         z-index: 1000;
-        backdrop-filter: blur(15px);
-        justify-content: center;
-        align-items: center;
+        backdrop-filter: blur(10px);
+        justify-content: center; align-items: center;
+        opacity: 0; transition: opacity 0.3s ease;
     }
+    .modal.active { opacity: 1; }
+    
     .modal-content {
         background: #0a0a0c;
-        border: 1px solid rgba(255,255,255,0.05);
-        padding: 50px;
-        max-width: 600px;
-        width: 90%;
-        text-align: center;
-    }
-
-    .user-badge {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 100;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        background: rgba(255,255,255,0.05);
-        padding: 8px 16px;
-        border-radius: 50px;
         border: 1px solid rgba(255,255,255,0.1);
-        backdrop-filter: blur(5px);
-    }
-</style>
-</head>
-<body>
-<canvas id="memorial-canvas"></canvas>
-
-<div id="user-status" class="hidden user-badge">
-    <span id="user-name" class="text-[10px] uppercase tracking-widest text-white/60"></span>
-    <button onclick="logout()" class="text-[9px] text-red-500 uppercase font-bold hover:text-white">Выйти</button>
-</div>
-
-<main class="relative z-10 flex flex-col items-center justify-center min-h-screen text-center px-6">
-    <div class="select-none mb-12">
-        <h1 class="military-text text-hero text-[80px] md:text-[140px]">ГЕРОИ</h1>
-        <div class="py-4">
-            <span class="text-xl font-light tracking-[1.2em] uppercase text-white/40">Бессмертный полк</span>
-        </div>
-        <h1 class="military-text text-eternity text-[80px] md:text-[140px]">ВЕЧНОСТЬ</h1>
-    </div>
-
-    <p class="text-gray-500 font-light italic text-xl max-w-2xl mb-16">
-        «Души героев не уходят в небытие. Они становятся светом, указывающим путь».
-    </p>
-
-    <div class="flex flex-col md:flex-row gap-8 justify-center items-center">
-        <button onclick="openModal('book')" class="btn-main">Книга Памяти</button>
-        <button onclick="checkAuthAndOpen()" class="btn-main" style="border-color: #ff4d4d; color: #ff4d4d;">Вписать Имя</button>
-    </div>
-</main>
-
-<div id="modal-book" class="modal" onclick="closeModal()">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <h2 class="military-text text-hero text-4xl mb-6">Книга Памяти</h2>
-        <p class="text-gray-400 mb-8 font-light">Раздел находится в разработке.</p>
-        <button onclick="closeModal()" class="btn-main">Назад</button>
-    </div>
-</div>
-
-<div id="modal-auth" class="modal" onclick="closeModal()">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <h2 class="military-text text-eternity text-4xl mb-6">Авторизация</h2>
-        <p class="text-gray-400 mb-8 font-light">Пожалуйста, войдите через Google, чтобы продолжить.</p>
-        <button onclick="login()" class="bg-white text-black px-12 py-4 font-bold uppercase text-[10px] tracking-widest hover:bg-red-600 hover:text-white transition-all">
-            Войти через Google
-        </button>
-    </div>
-</div>
-
-<script>
-    const canvas = document.getElementById('memorial-canvas');
-    const ctx = canvas.getContext('2d');
-    let souls = []; let stars = [];
-
-    class Soul {
-        constructor() { this.reset(); this.y = Math.random() * canvas.height; }
-        reset() { 
-            this.x = Math.random() * canvas.width; 
-            this.y = canvas.height + 100; 
-            this.size = 1.2 + Math.random() * 2; 
-            this.speed = 0.3 + Math.random() * 0.5; 
-            this.opacity = 0; 
-            this.osc = Math.random() * 100; 
-            this.color = Math.random() > 0.85 ? '255, 60, 60' : '255, 255, 255'; 
-        }
-        update() { 
-            this.y -= this.speed; this.osc += 0.015; this.x += Math.sin(this.osc) * 0.4; 
-            if (this.y > canvas.height * 0.5) this.opacity = Math.min(0.4, this.opacity + 0.005);
-            else if (this.y < canvas.height * 0.2) this.opacity = Math.max(0, this.opacity - 0.005);
-            if (this.y < -100) this.reset(); 
-        }
-        draw() { 
-            if (this.opacity <= 0) return;
-            ctx.save(); ctx.globalAlpha = this.opacity;
-            const g = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 25);
-            g.addColorStop(0, `rgba(${this.color}, 0.8)`);
-            g.addColorStop(1, `rgba(${this.color}, 0)`);
-            ctx.fillStyle = g; ctx.beginPath(); ctx.arc(this.x, this.y, this.size * 25, 0, Math.PI*2); ctx.fill();
-            ctx.restore(); 
-        }
+        padding: 40px;
+        max-width: 600px; width: 90%;
+        text-align: center;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+        position: relative;
     }
 
-    class Star {
-        constructor() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.s = Math.random() * 1; this.b = Math.random() * Math.PI; }
-        draw() { this.b += 0.005; ctx.fillStyle = `rgba(255,255,255,${0.05 + Math.abs(Math.sin(this.b))*0.2})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.s, 0, Math.PI*2); ctx.fill(); }
-    }
-
-    function init() { 
-        canvas.width = window.innerWidth; canvas.height = window.innerHeight; 
-        souls = Array.from({length: 40}, () => new Soul()); 
-        stars = Array.from({length: 150}, () => new Star()); 
-    }
-    function animate() { 
-        ctx.fillStyle = '#050508'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-        stars.forEach(s => s.draw()); souls.forEach(s => { s.update(); s.draw(); }); 
-        requestAnimationFrame(animate); 
-    }
-
-    const firebaseConfig = { 
-        apiKey: "AIzaSyB7bTin28New3YE4GsgTjcJnzllzJn_-YI", 
-        authDomain: "geroivechnost.firebaseapp.com", 
-        projectId: "geroivechnost", 
-        storageBucket: "geroivechnost.firebasestorage.app", 
-        messagingSenderId: "571001236869", 
-        appId: "1:571001236869:web:26d2692cff6b4c49ada8ec" 
-    };
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-
-    function login() { const provider = new firebase.auth.GoogleAuthProvider(); auth.signInWithRedirect(provider); }
-    function logout() { auth.signOut(); }
-    function checkAuthAndOpen() { if (auth.currentUser) { openModal('book'); } else { openModal('auth'); } }
-
-    auth.onAuthStateChanged(user => {
-        const statusDiv = document.getElementById('user-status');
-        const userName = document.getElementById('user-name');
-        if (user) { statusDiv.classList.remove('hidden'); userName.innerText = user.displayName; closeModal(); }
-        else { statusDiv.classList.add('hidden'); }
-    });
-
-    function openModal(id) { document.getElementById('modal-' + id).style.display = 'flex'; }
-    function closeModal() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
-
-    window.addEventListener('resize', init);
-    init(); animate();
-</script>
-</body>
-</html>
+    /* Скроллбар для списка */
+    .custom-scroll::-webkit-scrollbar { width: 6px; }
+    .custom-scroll::-webkit-scrollbar-track {
