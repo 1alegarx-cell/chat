@@ -85,7 +85,7 @@
             background: #0d0d0f;
             border: 1px solid rgba(255,255,255,0.08);
             padding: 40px;
-            max-width: 480px;
+            max-width: 520px;
             width: 100%;
             border-radius: 32px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
@@ -100,17 +100,21 @@
             width: 100%;
             padding: 12px;
             border-radius: 14px;
-            font-size: 12px;
+            font-size: 11px;
             font-weight: 600;
             margin-bottom: 8px;
             transition: all 0.3s ease;
             cursor: pointer;
             text-transform: uppercase;
             letter-spacing: 1px;
+            border: 1px solid rgba(255,255,255,0.05);
         }
 
-        .btn-google { background: white; color: #000; border: 1px solid #e5e7eb; }
+        .btn-google { background: white; color: #000; }
         .btn-vk { background: #0077FF; color: white; }
+        .btn-tg { background: #229ED9; color: white; }
+        .btn-mail { background: #005FF9; color: white; }
+        .btn-ok { background: #F97311; color: white; }
 
         .pretty-input {
             width: 100%;
@@ -130,16 +134,50 @@
             top: 25px; right: 25px;
             z-index: 100;
             background: rgba(255, 255, 255, 0.05);
-            padding: 8px 16px;
+            padding: 10px 20px;
             border-radius: 30px;
             border: 1px solid rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        .status-online {
+            background-color: #22c55e;
+            color: #22c55e;
+            animation: pulse-green 1.5s infinite;
+        }
+
+        .status-offline {
+            background-color: #ef4444;
+            color: #ef4444;
+            animation: pulse-red 2s infinite;
+        }
+
+        @keyframes pulse-green {
+            0% { opacity: 0.4; transform: scale(0.9); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+            50% { opacity: 1; transform: scale(1.1); box-shadow: 0 0 15px 2px rgba(34, 197, 94, 0.4); }
+            100% { opacity: 0.4; transform: scale(0.9); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+
+        @keyframes pulse-red {
+            0% { opacity: 0.4; transform: scale(0.9); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            50% { opacity: 1; transform: scale(1.1); box-shadow: 0 0 15px 2px rgba(239, 68, 68, 0.4); }
+            100% { opacity: 0.4; transform: scale(0.9); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
 
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
 
-        /* Всплывающее уведомление */
         #toast {
             position: fixed;
             bottom: 30px;
@@ -168,10 +206,15 @@
     <p id="toast-text" class="text-[10px] uppercase tracking-widest font-bold"></p>
 </div>
 
-<div id="user-status" class="user-badge" style="display: none;">
+<!-- Статус бар пользователя -->
+<div id="user-status-container" class="user-badge">
+    <span id="status-indicator" class="status-dot status-offline"></span>
     <div class="flex items-center gap-4">
-        <span id="user-name" class="text-[10px] font-bold uppercase tracking-widest text-gray-300"></span>
-        <button onclick="logout()" class="text-[10px] text-red-500 hover:text-red-400 uppercase font-bold">Выйти</button>
+        <span id="user-name" class="text-[10px] font-bold uppercase tracking-widest text-gray-300">Гость</span>
+        <div id="auth-actions">
+            <button onclick="openModal('auth')" id="login-btn" class="text-[10px] text-white/50 hover:text-white uppercase font-bold">Вход / Регистрация</button>
+            <button onclick="logout()" id="logout-btn" class="text-[10px] text-red-500 hover:text-red-400 uppercase font-bold hidden">Выйти</button>
+        </div>
     </div>
 </div>
 
@@ -191,23 +234,33 @@
 <!-- МОДАЛКА АВТОРИЗАЦИИ -->
 <div id="modal-auth" class="modal" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
-        <div class="text-center mb-4">
-            <h2 class="military-text text-2xl mb-1">Вход в систему</h2>
-            <p class="text-[9px] uppercase tracking-widest text-gray-500 opacity-60">Авторизуйтесь, чтобы добавить героя</p>
+        <div class="text-center mb-6">
+            <h2 class="military-text text-2xl mb-1">Центр Аутентификации</h2>
+            <p class="text-[9px] uppercase tracking-widest text-gray-500 opacity-60">Используйте соцсети или почту</p>
         </div>
 
-        <div class="grid grid-cols-1 gap-2">
-            <button onclick="socialLogin('google')" class="auth-provider-btn btn-google">Google</button>
+        <!-- Сетка кнопок соцсетей -->
+        <div class="grid grid-cols-2 gap-2 mb-4">
+            <button onclick="socialLogin('google')" class="auth-provider-btn btn-google col-span-2">Google</button>
+            <button onclick="socialLogin('vk')" class="auth-provider-btn btn-vk">ВКонтакте</button>
+            <button onclick="socialLogin('tg')" class="auth-provider-btn btn-tg">Telegram</button>
+            <button onclick="socialLogin('mail')" class="auth-provider-btn btn-mail">Mail.ru</button>
+            <button onclick="socialLogin('ok')" class="auth-provider-btn btn-ok">OK.ru</button>
         </div>
 
-        <div class="flex flex-col gap-1 mt-4">
+        <div class="relative py-4 mb-2">
+            <div class="absolute inset-0 flex items-center"><span class="w-full border-t border-white/5"></span></div>
+            <div class="relative flex justify-center text-[8px] uppercase tracking-widest"><span class="bg-[#0d0d0f] px-2 text-gray-500">Или прямой доступ</span></div>
+        </div>
+
+        <div class="flex flex-col gap-1 mb-4">
             <input type="email" id="auth-email" class="pretty-input" placeholder="Почта">
             <input type="password" id="auth-password" class="pretty-input" placeholder="Пароль">
         </div>
         
-        <div class="flex gap-2 mt-2">
-            <button onclick="handleEmailAuth('login')" class="btn-main w-full !p-3 !text-[10px] !bg-white !text-black">Вход</button>
-            <button onclick="handleEmailAuth('register')" class="btn-main w-full !p-3 !text-[10px]">Регистрация</button>
+        <div class="grid grid-cols-2 gap-2">
+            <button onclick="handleEmailAuth('login')" class="btn-main !p-3 !text-[10px] !bg-white !text-black !border-none font-bold">Войти</button>
+            <button onclick="handleEmailAuth('register')" class="btn-main !p-3 !text-[10px] font-bold">Создать</button>
         </div>
     </div>
 </div>
@@ -225,12 +278,12 @@
         </select>
         <div class="mb-4">
             <input type="file" id="hero-photo-file" accept="image/*" onchange="previewFile()" class="hidden">
-            <button onclick="document.getElementById('hero-photo-file').click()" class="w-full p-4 border-2 border-dashed border-white/10 rounded-xl text-[10px] text-gray-400 hover:border-white/30 uppercase tracking-widest">Выбрать фото</button>
+            <button onclick="document.getElementById('hero-photo-file').click()" class="w-full p-4 border-2 border-dashed border-white/10 rounded-xl text-[10px] text-gray-400 hover:border-white/30 uppercase tracking-widest">Выбрать фотографию</button>
             <img id="photo-preview" class="hidden mt-4 w-full h-48 object-cover rounded-xl border border-white/10">
         </div>
-        <textarea id="hero-desc" rows="3" class="pretty-input" placeholder="Описание..."></textarea>
+        <textarea id="hero-desc" rows="3" class="pretty-input" placeholder="История героя..."></textarea>
         <div class="flex gap-4 mt-2">
-            <button onclick="saveHero()" class="btn-main w-full !bg-red-900/20 !border-red-900/40">Отправить</button>
+            <button onclick="saveHero()" class="btn-main w-full !bg-red-900/20 !border-red-900/40">Увековечить</button>
             <button onclick="closeModal()" class="btn-main w-full">Отмена</button>
         </div>
     </div>
@@ -241,7 +294,7 @@
     <div class="modal-content !max-w-5xl h-[85vh] overflow-hidden flex flex-col" onclick="event.stopPropagation()">
         <div class="flex justify-between items-center mb-6">
             <h2 class="military-text text-3xl text-hero">Архив Памяти</h2>
-            <button onclick="closeModal()" class="text-white/30 hover:text-white">&times;</button>
+            <button onclick="closeModal()" class="text-white/30 hover:text-white text-3xl">&times;</button>
         </div>
         <div id="heroes-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto pr-2 custom-scrollbar"></div>
     </div>
@@ -272,31 +325,52 @@
     }
 
     async function socialLogin(provider) {
+        showToast("Запрос к " + provider.toUpperCase() + "...");
         try {
-            const authProvider = new firebase.auth.GoogleAuthProvider();
-            await auth.signInWithPopup(authProvider);
-            closeModal();
-        } catch (error) { showToast("Ошибка входа", "#ff4d4d"); }
+            if (provider === 'google') {
+                const authProvider = new firebase.auth.GoogleAuthProvider();
+                await auth.signInWithPopup(authProvider);
+                closeModal();
+                showToast("Вход выполнен", "#4ade80");
+            } else {
+                showToast("Провайдер " + provider + " требует настройки API", "#f59e0b");
+            }
+        } catch (error) { showToast("Ошибка аутентификации", "#ff4d4d"); }
     }
 
     async function handleEmailAuth(type) {
         const email = document.getElementById('auth-email').value;
         const pass = document.getElementById('auth-password').value;
-        if(!email || pass.length < 6) return showToast("Данные некорректны", "#ff4d4d");
+        if(!email || pass.length < 6) return showToast("Нужен Email и пароль 6+", "#ff4d4d");
         try {
-            if(type === 'login') await auth.signInWithEmailAndPassword(email, pass);
-            else await auth.createUserWithEmailAndPassword(email, pass);
+            if(type === 'login') {
+                await auth.signInWithEmailAndPassword(email, pass);
+                showToast("Доступ разрешен", "#4ade80");
+            } else {
+                await auth.createUserWithEmailAndPassword(email, pass);
+                showToast("Аккаунт создан", "#4ade80");
+            }
             closeModal();
-        } catch(e) { showToast(e.message, "#ff4d4d"); }
-    }
-
-    function updateUIForUser(name) {
-        document.getElementById('user-status').style.display = 'block';
-        document.getElementById('user-name').innerText = name;
+        } catch(e) { showToast("Ошибка доступа", "#ff4d4d"); }
     }
 
     auth.onAuthStateChanged(user => {
-        if (user) updateUIForUser(user.displayName || user.email.split('@')[0]);
+        const indicator = document.getElementById('status-indicator');
+        const nameLabel = document.getElementById('user-name');
+        const loginBtn = document.getElementById('login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+
+        if (user) {
+            indicator.className = 'status-dot status-online';
+            nameLabel.innerText = user.displayName || user.email.split('@')[0];
+            loginBtn.classList.add('hidden');
+            logoutBtn.classList.remove('hidden');
+        } else {
+            indicator.className = 'status-dot status-offline';
+            nameLabel.innerText = 'Гость';
+            loginBtn.classList.remove('hidden');
+            logoutBtn.classList.add('hidden');
+        }
         loadHeroes();
     });
 
@@ -305,7 +379,7 @@
             const data = snap.docs.map(doc => ({id: doc.id, ...doc.data()}));
             approvedHeroes = data.filter(h => h.status === 'approved');
             renderArchive(data);
-        });
+        }, err => console.log("Connection lost..."));
     }
 
     function renderArchive(data) {
@@ -325,7 +399,7 @@
                     <div class="text-left">
                         <h3 class="text-[11px] font-bold uppercase tracking-tight text-white/90 mb-1 truncate">${h.name}</h3>
                         <span class="text-[7px] text-white/30 uppercase tracking-widest">${h.country}</span>
-                        ${!isApproved ? '<p class="text-[6px] text-yellow-500 mt-1 uppercase tracking-tighter">На проверке</p>' : ''}
+                        ${!isApproved ? '<p class="text-[6px] text-yellow-500 mt-1 uppercase tracking-tighter">Ожидание</p>' : ''}
                     </div>
                 </div>
             `;
@@ -340,13 +414,13 @@
                 const img = new Image();
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    const maxWidth = 500;
+                    const maxWidth = 600;
                     const scale = maxWidth / img.width;
                     canvas.width = maxWidth; 
                     canvas.height = img.height * scale;
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    base64Photo = canvas.toDataURL('image/jpeg', 0.6);
+                    base64Photo = canvas.toDataURL('image/jpeg', 0.7);
                     document.getElementById('photo-preview').src = base64Photo;
                     document.getElementById('photo-preview').classList.remove('hidden');
                 };
@@ -358,42 +432,28 @@
 
     function saveHero() {
         const name = document.getElementById('hero-name').value;
-        if (!name || !base64Photo) return showToast("Заполните ФИО и Фото", "#ff4d4d");
+        if (!name || !base64Photo) return showToast("Нужно имя и фото", "#ff4d4d");
 
-        // --- ЛОГИКА БЕЗ ОЖИДАНИЯ ---
-        // 1. Копируем данные
         const heroData = {
-            name,
-            photo: base64Photo,
+            name, photo: base64Photo,
             country: document.getElementById('hero-country').value,
             desc: document.getElementById('hero-desc').value,
-            status: 'pending',
-            userId: auth.currentUser.uid,
+            status: 'pending', userId: auth.currentUser.uid,
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         };
 
-        // 2. Сразу закрываем форму и открываем архив
         closeModal();
-        openModal('book');
-        showToast("Отправка данных...");
-
-        // 3. Запускаем фоновую отправку
-        db.collection('heroes').add(heroData)
-            .then(() => {
-                showToast("Герой добавлен! Ожидайте проверки.", "#4ade80");
-                // Очистка формы в фоне
-                document.getElementById('hero-name').value = '';
-                document.getElementById('hero-desc').value = '';
-                base64Photo = '';
-                document.getElementById('photo-preview').classList.add('hidden');
-            })
-            .catch(e => {
-                showToast("Ошибка при отправке", "#ff4d4d");
-                console.error(e);
-            });
+        showToast("Отправка в архив...");
+        db.collection('heroes').add(heroData).then(() => {
+            showToast("Данные сохранены", "#4ade80");
+            document.getElementById('hero-name').value = '';
+            document.getElementById('hero-desc').value = '';
+            base64Photo = '';
+            document.getElementById('photo-preview').classList.add('hidden');
+        });
     }
 
-    // --- VISUALS ---
+    // --- Фоновая анимация ---
     const cvs = document.getElementById('memorial-canvas');
     const ctx = cvs.getContext('2d');
     let souls = [];
@@ -438,7 +498,7 @@
     function openModal(id) { document.getElementById('modal-'+id).style.display='flex'; }
     function closeModal() { document.querySelectorAll('.modal').forEach(m=>m.style.display='none'); }
     function checkAuthAndOpen() { auth.currentUser ? openModal('form') : openModal('auth'); }
-    function logout() { auth.signOut(); location.reload(); }
+    function logout() { auth.signOut().then(() => location.reload()); }
 
     window.addEventListener('resize', initCanvas);
     initCanvas(); animate();
