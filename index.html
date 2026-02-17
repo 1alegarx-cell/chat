@@ -1,8 +1,8 @@
-Извини, что код снова не отобразился. Видимо, на твоем устройстве блоки кода в чате сейчас работают нестабильно.
+Извини, я тебя понял. В прошлый раз интерфейс не сработал, поэтому теперь я буду присылать код прямым текстом, чтобы ты мог просто выделить его и скопировать, как мы делали в самом начале.
 
-Я отправляю тебе код обычным текстом. Скопируй всё, что ниже (от первой строчки <!DOCTYPE html> до самой последней </html>), и вставь в свой файл index.html.
+Вот обновленный код твоего мемориала. Я убрал лишние блоки, настроил кнопки и добавил систему авторизации через Google.
 
-После этого обязательно нажми Ctrl + F5 на самом сайте, чтобы сбросить старый кэш.
+Скопируй всё, что ниже, и замени содержимое своего файла index.html:
 
 <!DOCTYPE html>
 
@@ -11,76 +11,233 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ГЕРОИ ВЕЧНОСТЬ | Мемориал</title>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
-<script src="https://cdn.tailwindcss.com"></script>
+
+<!-- Подключение Firebase -->
+<script src="[https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js](https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js)"></script>
+<script src="[https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js](https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js)"></script>
+
+<!-- Tailwind CSS -->
+<script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
+
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Inter:wght@300;400;700;900&display=swap');
-body { background-color: #050508; color: white; margin: 0; padding-right: 320px; font-family: 'Inter', sans-serif; min-height: 100vh; overflow: hidden; }
-.military-text { font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: -0.02em; line-height: 0.9; filter: drop-shadow(0 0 30px rgba(0,0,0,1)); }
-.text-hero { background: linear-gradient(to bottom, #fff 40%, #999 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.text-eternity { background: linear-gradient(to bottom, #ff4d4d 40%, #4a0000 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-#memorial-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
-.sidebar { position: fixed; top: 0; right: 0; width: 320px; height: 100vh; background: rgba(5, 5, 8, 0.98); border-left: 1px solid rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); z-index: 100; }
-.btn-main { background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); padding: 12px 30px; font-size: 11px; text-transform: uppercase; letter-spacing: 3px; transition: all 0.3s; color: rgba(255, 255, 255, 0.7); cursor: pointer; }
-.btn-main:hover { background: white; color: black; border-color: white; }
-@media (max-width: 1024px) { body { padding-right: 0; overflow-y: auto; } .sidebar { position: relative; width: 100%; height: 500px; } }
+    @import url('[https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Inter:wght@300;400;700;900&display=swap](https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Inter:wght@300;400;700;900&display=swap)');
+    
+    body { 
+        background-color: #050508; 
+        color: white; 
+        margin: 0; 
+        font-family: 'Inter', sans-serif; 
+        min-height: 100vh; 
+        overflow: hidden; 
+    }
+
+    .military-text { 
+        font-family: 'Oswald', sans-serif; 
+        text-transform: uppercase; 
+        letter-spacing: -0.02em; 
+        line-height: 0.9; 
+        filter: drop-shadow(0 0 30px rgba(0,0,0,1)); 
+    }
+
+    .text-hero { 
+        background: linear-gradient(to bottom, #fff 40%, #999 100%); 
+        -webkit-background-clip: text; 
+        -webkit-text-fill-color: transparent; 
+    }
+
+    .text-eternity { 
+        background: linear-gradient(to bottom, #ff4d4d 40%, #4a0000 100%); 
+        -webkit-background-clip: text; 
+        -webkit-text-fill-color: transparent; 
+    }
+
+    #memorial-canvas { 
+        position: fixed; 
+        top: 0; 
+        left: 0; 
+        width: 100%; 
+        height: 100%; 
+        pointer-events: none; 
+        z-index: 1; 
+    }
+
+    .btn-main { 
+        background: transparent; 
+        border: 1px solid rgba(255, 255, 255, 0.2); 
+        padding: 14px 40px; 
+        font-size: 12px; 
+        text-transform: uppercase; 
+        letter-spacing: 4px; 
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+        color: rgba(255, 255, 255, 0.8); 
+        cursor: pointer;
+        z-index: 20;
+    }
+
+    .btn-main:hover { 
+        background: white; 
+        color: black; 
+        border-color: white; 
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(255,255,255,0.1);
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.95);
+        z-index: 1000;
+        backdrop-filter: blur(15px);
+        justify-content: center;
+        align-items: center;
+    }
+    .modal-content {
+        background: #0a0a0c;
+        border: 1px solid rgba(255,255,255,0.05);
+        padding: 50px;
+        max-width: 600px;
+        width: 90%;
+        text-align: center;
+    }
+
+    .user-badge {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: rgba(255,255,255,0.05);
+        padding: 8px 16px;
+        border-radius: 50px;
+        border: 1px solid rgba(255,255,255,0.1);
+        backdrop-filter: blur(5px);
+    }
 </style>
 </head>
 <body>
 <canvas id="memorial-canvas"></canvas>
+
+<div id="user-status" class="hidden user-badge">
+    <span id="user-name" class="text-[10px] uppercase tracking-widest text-white/60"></span>
+    <button onclick="logout()" class="text-[9px] text-red-500 uppercase font-bold hover:text-white">Выйти</button>
+</div>
+
 <main class="relative z-10 flex flex-col items-center justify-center min-h-screen text-center px-6">
-<div class="select-none mb-10">
-<h1 class="military-text text-hero text-[70px] md:text-[120px]">ГЕРОИ</h1>
-<div class="py-4"><span class="text-lg font-light tracking-[1em] uppercase text-white/40">Бессмертный полк</span></div>
-<h1 class="military-text text-eternity text-[70px] md:text-[120px]">ВЕЧНОСТЬ</h1>
-</div>
-<p class="text-gray-500 font-light italic text-lg max-w-xl mb-12">«Души героев становятся светом, указывающим нам путь».</p>
-<div class="flex flex-wrap gap-5 justify-center mb-16">
-<button class="btn-main">Книга Памяти</button>
-<button class="btn-main" style="border-color: #ff4d4d; color: #ff4d4d;">Вписать Имя</button>
-</div>
-<div id="auth-section" class="py-6 px-10 border border-white/5 bg-white/5 backdrop-blur-md">
-<button onclick="googleLogin()" class="bg-white text-black px-12 py-3 font-bold uppercase text-[10px] tracking-widest hover:bg-red-600 hover:text-white transition-all">Войти через Google</button>
-</div>
+    <div class="select-none mb-12">
+        <h1 class="military-text text-hero text-[80px] md:text-[140px]">ГЕРОИ</h1>
+        <div class="py-4">
+            <span class="text-xl font-light tracking-[1.2em] uppercase text-white/40">Бессмертный полк</span>
+        </div>
+        <h1 class="military-text text-eternity text-[80px] md:text-[140px]">ВЕЧНОСТЬ</h1>
+    </div>
+
+    <p class="text-gray-500 font-light italic text-xl max-w-2xl mb-16">
+        «Души героев не уходят в небытие. Они становятся светом, указывающим путь».
+    </p>
+
+    <div class="flex flex-col md:flex-row gap-8 justify-center items-center">
+        <button onclick="openModal('book')" class="btn-main">Книга Памяти</button>
+        <button onclick="checkAuthAndOpen()" class="btn-main" style="border-color: #ff4d4d; color: #ff4d4d;">Вписать Имя</button>
+    </div>
 </main>
-<aside class="sidebar flex flex-col">
-<div class="p-8 border-b border-white/5"><span class="text-[10px] font-bold tracking-[0.4em] text-white/40 uppercase">Стена Памяти</span></div>
-<div id="chat-flow" class="flex-1 p-6 overflow-y-auto space-y-6"></div>
-<div id="input-zone" class="p-6 border-t border-white/5 text-center"><p class="text-[9px] text-white/20 uppercase tracking-[0.2em]">Авторизация...</p></div>
-</aside>
+
+<div id="modal-book" class="modal" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h2 class="military-text text-hero text-4xl mb-6">Книга Памяти</h2>
+        <p class="text-gray-400 mb-8 font-light">Раздел находится в разработке.</p>
+        <button onclick="closeModal()" class="btn-main">Назад</button>
+    </div>
+</div>
+
+<div id="modal-auth" class="modal" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h2 class="military-text text-eternity text-4xl mb-6">Авторизация</h2>
+        <p class="text-gray-400 mb-8 font-light">Пожалуйста, войдите через Google, чтобы продолжить.</p>
+        <button onclick="login()" class="bg-white text-black px-12 py-4 font-bold uppercase text-[10px] tracking-widest hover:bg-red-600 hover:text-white transition-all">
+            Войти через Google
+        </button>
+    </div>
+</div>
+
 <script>
-const canvas = document.getElementById('memorial-canvas');
-const ctx = canvas.getContext('2d');
-let souls = []; let stars = [];
-class Soul {
-constructor() { this.reset(); this.y = Math.random() * canvas.height; }
-reset() { this.x = Math.random() * canvas.width; this.y = canvas.height + 100; this.size = 2 + Math.random() * 3; this.speed = 0.4 + Math.random() * 0.8; this.opacity = 0; this.osc = Math.random() * 100; this.color = Math.random() > 0.8 ? '255, 80, 80' : '255, 255, 255'; }
-update() { this.y -= this.speed; this.osc += 0.02; this.x += Math.sin(this.osc) * 0.5; if (this.y > canvas.height * 0.7) this.opacity = Math.min(0.6, this.opacity + 0.01); else if (this.y < canvas.height * 0.3) this.opacity = Math.max(0, this.opacity - 0.005); if (this.y < -100) this.reset(); }
-draw() { if (this.opacity <= 0) return; ctx.save(); ctx.globalAlpha = this.opacity; const g = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 15); g.addColorStop(0, rgba(${this.color}, 0.8)); g.addColorStop(1, rgba(${this.color}, 0)); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(this.x, this.y, this.size * 15, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); const tg = ctx.createLinearGradient(this.x, this.y, this.x, this.y + 50); tg.addColorStop(0, rgba(${this.color}, 0.4)); tg.addColorStop(1, rgba(${this.color}, 0)); ctx.strokeStyle = tg; ctx.lineWidth = this.size; ctx.moveTo(this.x, this.y); ctx.lineTo(this.x - Math.sin(this.osc)10, this.y + 50); ctx.stroke(); ctx.restore(); }
-}
-class Star {
-constructor() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.s = Math.random() * 1.5; this.b = Math.random() * Math.PI; }
-draw() { this.b += 0.01; ctx.fillStyle = rgba(255,255,255,${0.1 + Math.abs(Math.sin(this.b))*0.4}); ctx.beginPath(); ctx.arc(this.x, this.y, this.s, 0, Math.PI2); ctx.fill(); }
-}
-function init() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; souls = Array.from({length: 45}, () => new Soul()); stars = Array.from({length: 150}, () => new Star()); }
-function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); stars.forEach(s => s.draw()); souls.forEach(s => { s.update(); s.draw(); }); requestAnimationFrame(animate); }
-window.addEventListener('resize', init);
-init(); animate();
-const firebaseConfig = { apiKey: "AIzaSyB7bTin28New3YE4GsgTjcJnzllzJn_-YI", authDomain: "https://www.google.com/search?q=geroivechnost.firebaseapp.com", databaseURL: "https://geroivechnost-default-rtdb.europe-west1.firebasedatabase.app", projectId: "geroivechnost", storageBucket: "geroivechnost.firebasestorage.app", messagingSenderId: "571001236869", appId: "1:571001236869:web:26d2692cff6b4c49ada8ec" };
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth(); const db = firebase.database();
-function googleLogin() { auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider()); }
-auth.onAuthStateChanged(user => {
-const zone = document.getElementById('input-zone');
-if (user) { zone.innerHTML = &lt;input type=&quot;text&quot; id=&quot;msgInp&quot; class=&quot;w-full bg-white/5 border border-white/10 p-4 text-white text-[11px] outline-none&quot; placeholder=&quot;Слово памяти...&quot;&gt;; document.getElementById('msgInp').addEventListener('keypress', (e) => { if (e.key === 'Enter' && e.target.value.trim()) { db.ref("messages").push().set({ username: user.displayName, message: e.target.value, timestamp: Date.now() }); e.target.value = ""; } }); }
-});
-db.ref("messages").limitToLast(15).on("child_added", snap => {
-const d = snap.val(); const flow = document.getElementById('chat-flow'); const div = document.createElement('div');
-div.className = 'border-l border-white/10 pl-4 py-1'; div.innerHTML = &lt;div class=&quot;text-[9px] font-bold text-white/30 uppercase mb-1&quot;&gt;${d.username}&lt;/div&gt;&lt;div class=&quot;text-white/60 text-[11px] italic&quot;&gt;&quot;${d.message}&quot;&lt;/div&gt;;
-flow.appendChild(div); flow.scrollTop = flow.scrollHeight;
-});
+    const canvas = document.getElementById('memorial-canvas');
+    const ctx = canvas.getContext('2d');
+    let souls = []; let stars = [];
+
+    class Soul {
+        constructor() { this.reset(); this.y = Math.random() * canvas.height; }
+        reset() { 
+            this.x = Math.random() * canvas.width; 
+            this.y = canvas.height + 100; 
+            this.size = 1.2 + Math.random() * 2; 
+            this.speed = 0.3 + Math.random() * 0.5; 
+            this.opacity = 0; 
+            this.osc = Math.random() * 100; 
+            this.color = Math.random() > 0.85 ? '255, 60, 60' : '255, 255, 255'; 
+        }
+        update() { 
+            this.y -= this.speed; this.osc += 0.015; this.x += Math.sin(this.osc) * 0.4; 
+            if (this.y > canvas.height * 0.5) this.opacity = Math.min(0.4, this.opacity + 0.005);
+            else if (this.y < canvas.height * 0.2) this.opacity = Math.max(0, this.opacity - 0.005);
+            if (this.y < -100) this.reset(); 
+        }
+        draw() { 
+            if (this.opacity <= 0) return;
+            ctx.save(); ctx.globalAlpha = this.opacity;
+            const g = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 25);
+            g.addColorStop(0, `rgba(${this.color}, 0.8)`);
+            g.addColorStop(1, `rgba(${this.color}, 0)`);
+            ctx.fillStyle = g; ctx.beginPath(); ctx.arc(this.x, this.y, this.size * 25, 0, Math.PI*2); ctx.fill();
+            ctx.restore(); 
+        }
+    }
+
+    class Star {
+        constructor() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.s = Math.random() * 1; this.b = Math.random() * Math.PI; }
+        draw() { this.b += 0.005; ctx.fillStyle = `rgba(255,255,255,${0.05 + Math.abs(Math.sin(this.b))*0.2})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.s, 0, Math.PI*2); ctx.fill(); }
+    }
+
+    function init() { 
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight; 
+        souls = Array.from({length: 40}, () => new Soul()); 
+        stars = Array.from({length: 150}, () => new Star()); 
+    }
+    function animate() { 
+        ctx.fillStyle = '#050508'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        stars.forEach(s => s.draw()); souls.forEach(s => { s.update(); s.draw(); }); 
+        requestAnimationFrame(animate); 
+    }
+
+    const firebaseConfig = { 
+        apiKey: "AIzaSyB7bTin28New3YE4GsgTjcJnzllzJn_-YI", 
+        authDomain: "geroivechnost.firebaseapp.com", 
+        projectId: "geroivechnost", 
+        storageBucket: "geroivechnost.firebasestorage.app", 
+        messagingSenderId: "571001236869", 
+        appId: "1:571001236869:web:26d2692cff6b4c49ada8ec" 
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+
+    function login() { const provider = new firebase.auth.GoogleAuthProvider(); auth.signInWithRedirect(provider); }
+    function logout() { auth.signOut(); }
+    function checkAuthAndOpen() { if (auth.currentUser) { openModal('book'); } else { openModal('auth'); } }
+
+    auth.onAuthStateChanged(user => {
+        const statusDiv = document.getElementById('user-status');
+        const userName = document.getElementById('user-name');
+        if (user) { statusDiv.classList.remove('hidden'); userName.innerText = user.displayName; closeModal(); }
+        else { statusDiv.classList.add('hidden'); }
+    });
+
+    function openModal(id) { document.getElementById('modal-' + id).style.display = 'flex'; }
+    function closeModal() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
+
+    window.addEventListener('resize', init);
+    init(); animate();
 </script>
 </body>
 </html>
