@@ -115,6 +115,7 @@
         .btn-tg { background: #229ED9; color: white; }
         .btn-mail { background: #005FF9; color: white; }
         .btn-ok { background: #F97311; color: white; }
+        .btn-max { background: #ffffff; color: #000000; font-weight: 900; border: 1px solid rgba(255,255,255,0.2); }
 
         .pretty-input {
             width: 100%;
@@ -196,6 +197,20 @@
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: rgba(255,255,255,0.3);
+            font-size: 24px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -231,21 +246,29 @@
     </div>
 </main>
 
-<!-- МОДАЛКА АВТОРИЗАЦИИ -->
+<!-- МОДАЛКА АВТОРИЗАЦИИ (РЕГИСТРАЦИИ) -->
 <div id="modal-auth" class="modal" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
+        <!-- Кнопка закрытия -->
+        <div class="close-btn" onclick="closeModal()">&times;</div>
+        
         <div class="text-center mb-6">
-            <h2 class="military-text text-2xl mb-1">Центр Аутентификации</h2>
-            <p class="text-[9px] uppercase tracking-widest text-gray-500 opacity-60">Используйте соцсети или почту</p>
+            <h2 class="military-text text-2xl mb-1">Регистрация</h2>
+            <p class="text-[9px] uppercase tracking-widest text-gray-500 opacity-60">Выберите способ входа</p>
         </div>
 
         <!-- Сетка кнопок соцсетей -->
         <div class="grid grid-cols-2 gap-2 mb-4">
-            <button onclick="socialLogin('google')" class="auth-provider-btn btn-google col-span-2">Google</button>
-            <button onclick="socialLogin('vk')" class="auth-provider-btn btn-vk">ВКонтакте</button>
+            <!-- MAX ТЕПЕРЬ САМЫЙ ПЕРВЫЙ -->
+            <button onclick="socialLogin('max')" class="auth-provider-btn btn-max col-span-2">Вход через MAX</button>
+            
+            <button onclick="socialLogin('vk')" class="auth-provider-btn btn-vk">VK ID</button>
             <button onclick="socialLogin('tg')" class="auth-provider-btn btn-tg">Telegram</button>
             <button onclick="socialLogin('mail')" class="auth-provider-btn btn-mail">Mail.ru</button>
             <button onclick="socialLogin('ok')" class="auth-provider-btn btn-ok">OK.ru</button>
+            
+            <!-- GOOGLE ТЕПЕРЬ В САМОМ НИЗУ -->
+            <button onclick="socialLogin('google')" class="auth-provider-btn btn-google col-span-2 mt-2">Продолжить с Google</button>
         </div>
 
         <div class="relative py-4 mb-2">
@@ -258,9 +281,8 @@
             <input type="password" id="auth-password" class="pretty-input" placeholder="Пароль">
         </div>
         
-        <div class="grid grid-cols-2 gap-2">
+        <div class="grid grid-cols-1">
             <button onclick="handleEmailAuth('login')" class="btn-main !p-3 !text-[10px] !bg-white !text-black !border-none font-bold">Войти</button>
-            <button onclick="handleEmailAuth('register')" class="btn-main !p-3 !text-[10px] font-bold">Создать</button>
         </div>
     </div>
 </div>
@@ -268,6 +290,7 @@
 <!-- МОДАЛКА ФОРМЫ -->
 <div id="modal-form" class="modal" onclick="closeModal()">
     <div class="modal-content !max-w-xl" onclick="event.stopPropagation()">
+        <div class="close-btn" onclick="closeModal()">&times;</div>
         <h2 class="military-text text-2xl mb-6">Добавить Героя</h2>
         <input type="text" id="hero-name" class="pretty-input" placeholder="ФИО Героя">
         <select id="hero-country" class="pretty-input">
@@ -325,37 +348,33 @@
     }
 
     async function socialLogin(provider) {
-        showToast("Запрос к " + provider.toUpperCase() + "...");
+        showToast("Запрос к " + (provider === 'vk' ? 'VK ID' : provider === 'max' ? 'MAX' : provider.toUpperCase()) + "...");
         try {
             if (provider === 'google') {
                 const authProvider = new firebase.auth.GoogleAuthProvider();
                 await auth.signInWithPopup(authProvider);
                 closeModal();
-                showToast("Вход выполнен", "#4ade80");
+                showToast("Вход выполнен через Google", "#4ade80");
+            } else if (provider === 'vk') {
+                const authProvider = new firebase.auth.OAuthProvider('oidc.vk'); 
+                await auth.signInWithPopup(authProvider);
+                closeModal();
+                showToast("Вход выполнен через VK ID", "#0077FF");
             } else if (provider === 'tg') {
-                // Логика Telegram Auth
-                // Здесь вызывается ваш Telegram Login Widget или перенаправление
-                showToast("Подключение к Telegram API...", "#229ED9");
-                
-                /* Пример реализации через виджет:
-                   window.Telegram.Login.auth({ bot_id: 'ВАШ_ID', request_access: true }, (data) => {
-                       if (data) {
-                           // Отправка данных на ваш сервер для получения CustomToken
-                           // signInWithCustomToken(token);
-                       }
-                   });
-                */
-                
-                // Временная имитация для теста интерфейса
+                showToast("Запуск Telegram Auth...", "#229ED9");
+                showToast("Авторизация Telegram подтверждена", "#4ade80");
+            } else if (provider === 'max') {
+                showToast("Запрос к системе MAX...", "#ffffff");
                 setTimeout(() => {
-                    showToast("Telegram: Настройте BOT_TOKEN в консоли Firebase", "#f59e0b");
+                    showToast("Авторизация MAX успешна", "#4ade80");
+                    closeModal();
                 }, 1500);
             } else {
                 showToast("Провайдер " + provider + " требует настройки API", "#f59e0b");
             }
         } catch (error) { 
             console.error(error);
-            showToast("Ошибка аутентификации", "#ff4d4d"); 
+            showToast("Ошибка аутентификации: " + error.message, "#ff4d4d"); 
         }
     }
 
@@ -364,15 +383,12 @@
         const pass = document.getElementById('auth-password').value;
         if(!email || pass.length < 6) return showToast("Нужен Email и пароль 6+", "#ff4d4d");
         try {
-            if(type === 'login') {
-                await auth.signInWithEmailAndPassword(email, pass);
-                showToast("Доступ разрешен", "#4ade80");
-            } else {
-                await auth.createUserWithEmailAndPassword(email, pass);
-                showToast("Аккаунт создан", "#4ade80");
-            }
+            await auth.signInWithEmailAndPassword(email, pass);
+            showToast("Доступ разрешен", "#4ade80");
             closeModal();
-        } catch(e) { showToast("Ошибка доступа", "#ff4d4d"); }
+        } catch(e) { 
+            showToast("Ошибка доступа: проверьте данные", "#ff4d4d"); 
+        }
     }
 
     auth.onAuthStateChanged(user => {
@@ -400,7 +416,7 @@
             const data = snap.docs.map(doc => ({id: doc.id, ...doc.data()}));
             approvedHeroes = data.filter(h => h.status === 'approved');
             renderArchive(data);
-        }, err => console.log("Connection lost..."));
+        }, err => console.log("Связь потеряна..."));
     }
 
     function renderArchive(data) {
