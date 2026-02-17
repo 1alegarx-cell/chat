@@ -332,10 +332,31 @@
                 await auth.signInWithPopup(authProvider);
                 closeModal();
                 showToast("Вход выполнен", "#4ade80");
+            } else if (provider === 'tg') {
+                // Логика Telegram Auth
+                // Здесь вызывается ваш Telegram Login Widget или перенаправление
+                showToast("Подключение к Telegram API...", "#229ED9");
+                
+                /* Пример реализации через виджет:
+                   window.Telegram.Login.auth({ bot_id: 'ВАШ_ID', request_access: true }, (data) => {
+                       if (data) {
+                           // Отправка данных на ваш сервер для получения CustomToken
+                           // signInWithCustomToken(token);
+                       }
+                   });
+                */
+                
+                // Временная имитация для теста интерфейса
+                setTimeout(() => {
+                    showToast("Telegram: Настройте BOT_TOKEN в консоли Firebase", "#f59e0b");
+                }, 1500);
             } else {
                 showToast("Провайдер " + provider + " требует настройки API", "#f59e0b");
             }
-        } catch (error) { showToast("Ошибка аутентификации", "#ff4d4d"); }
+        } catch (error) { 
+            console.error(error);
+            showToast("Ошибка аутентификации", "#ff4d4d"); 
+        }
     }
 
     async function handleEmailAuth(type) {
