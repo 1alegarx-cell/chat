@@ -1,98 +1,262 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ГЕРОИ ВЕЧНОСТЬ | Мемориал</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ГЕРОИ ВЕЧНОСТЬ | Официальный Мемориал</title>
 
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <!-- Firebase SDK Legacy -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 
-<script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Inter:wght@300;400;700;900&display=swap');
-    
-    body { 
-        background-color: #050508; 
-        color: white; 
-        margin: 0; 
-        font-family: 'Inter', sans-serif; 
-        min-height: 100vh; 
-        overflow: hidden; 
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Inter:wght@300;400;700;900&display=swap');
+        
+        body { 
+            background-color: #050508; 
+            color: white; 
+            margin: 0; 
+            font-family: 'Inter', sans-serif; 
+            min-height: 100vh; 
+            overflow: hidden; 
+        }
+
+        .military-text { 
+            font-family: 'Oswald', sans-serif; 
+            text-transform: uppercase; 
+            letter-spacing: -0.02em; 
+            line-height: 0.9; 
+            filter: drop-shadow(0 0 30px rgba(0,0,0,1)); 
+        }
+
+        .text-hero { 
+            background: linear-gradient(to bottom, #fff 40%, #999 100%); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+        }
+
+        .text-eternity { 
+            background: linear-gradient(to bottom, #ff4d4d 40%, #4a0000 100%); 
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent; 
+        }
+
+        /* Синий неоновый текст */
+        .text-official {
+            color: #3b82f6;
+            text-shadow: 0 0 15px rgba(59, 130, 246, 0.9), 0 0 30px rgba(59, 130, 246, 0.5);
+            letter-spacing: 0.5em;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        #memorial-canvas { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            pointer-events: none; 
+            z-index: 1; 
+        }
+
+        .btn-main { 
+            background: transparent; 
+            border: 1px solid rgba(255, 255, 255, 0.2); 
+            padding: 14px 40px; 
+            font-size: 12px; 
+            text-transform: uppercase; 
+            letter-spacing: 4px; 
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+            color: rgba(255, 255, 255, 0.8); 
+            cursor: pointer;
+            z-index: 20;
+        }
+
+        .btn-main:hover { 
+            background: white; 
+            color: black; 
+            border-color: white; 
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255,255,255,0.15);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 1000;
+            backdrop-filter: blur(15px);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: #0a0a0c;
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 50px;
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .user-badge {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255,255,255,0.05);
+            padding: 8px 16px;
+            border-radius: 50px;
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(5px);
+        }
+    </style>
+</head>
+<body>
+<canvas id="memorial-canvas"></canvas>
+
+<div id="user-status" class="user-badge">
+    <span id="user-name" class="text-[10px] uppercase tracking-widest text-white/60"></span>
+    <button onclick="logout()" class="text-[9px] text-red-500 uppercase font-bold hover:text-white ml-2">Выйти</button>
+</div>
+
+<main class="relative z-10 flex flex-col items-center justify-center min-h-screen text-center px-6">
+    <div class="select-none mb-12">
+        <h1 class="military-text text-hero text-[80px] md:text-[140px]">ГЕРОИ</h1>
+        <div class="py-4">
+            <span class="text-official text-sm md:text-xl">ОФИЦИАЛЬНЫЙ МЕМОРИАЛ</span>
+        </div>
+        <h1 class="military-text text-eternity text-[80px] md:text-[140px]">ВЕЧНОСТЬ</h1>
+    </div>
+
+    <p class="text-gray-500 font-light italic text-xl max-w-2xl mb-16">
+        «Души героев не уходят в небытие. Они становятся светом, указывающим путь».
+    </p>
+
+    <div class="flex flex-col md:flex-row gap-8 justify-center items-center">
+        <button onclick="openModal('book')" class="btn-main">Книга Памяти</button>
+        <button onclick="checkAuthAndOpen()" class="btn-main" style="border-color: #ff4d4d; color: #ff4d4d;">Вписать Имя</button>
+    </div>
+</main>
+
+<div id="modal-book" class="modal" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h2 class="military-text text-hero text-4xl mb-6">Книга Памяти</h2>
+        <p class="text-gray-400 mb-8 font-light">Раздел находится в разработке. Имена героев синхронизируются.</p>
+        <button onclick="closeModal()" class="btn-main">Назад</button>
+    </div>
+</div>
+
+<div id="modal-auth" class="modal" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h2 class="military-text text-eternity text-4xl mb-6">Авторизация</h2>
+        <p class="text-gray-400 mb-8 font-light">Пожалуйста, войдите через Google, чтобы продолжить работу с мемориалом.</p>
+        <button onclick="login()" class="bg-white text-black px-12 py-4 font-bold uppercase text-[10px] tracking-widest hover:bg-red-600 hover:text-white transition-all">
+            Войти через Google
+        </button>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById('memorial-canvas');
+    const ctx = canvas.getContext('2d');
+    let souls = []; let stars = [];
+
+    class Particle {
+        constructor(isSoul) {
+            this.isSoul = isSoul;
+            this.reset();
+            if(!isSoul) this.y = Math.random() * canvas.height;
+        }
+        reset() {
+            this.x = Math.random() * canvas.width;
+            this.y = this.isSoul ? canvas.height + 100 : Math.random() * canvas.height;
+            this.size = this.isSoul ? (1.5 + Math.random() * 2) : Math.random() * 1.2;
+            this.speed = this.isSoul ? (0.3 + Math.random() * 0.6) : 0;
+            this.opacity = this.isSoul ? 0 : Math.random();
+            this.osc = Math.random() * 100;
+            this.color = Math.random() > 0.85 ? '255, 77, 77' : '255, 255, 255';
+        }
+        update() {
+            if(this.isSoul) {
+                this.y -= this.speed;
+                this.osc += 0.02;
+                this.x += Math.sin(this.osc) * 0.5;
+                if (this.y > canvas.height * 0.4) this.opacity = Math.min(0.5, this.opacity + 0.005);
+                else if (this.y < canvas.height * 0.2) this.opacity = Math.max(0, this.opacity - 0.005);
+                if (this.y < -100) this.reset();
+            } else {
+                this.opacity = 0.1 + Math.abs(Math.sin(Date.now() * 0.001 + this.osc)) * 0.4;
+            }
+        }
+        draw() {
+            ctx.save();
+            ctx.globalAlpha = this.opacity;
+            if(this.isSoul) {
+                const grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 25);
+                grad.addColorStop(0, `rgba(${this.color}, 0.8)`);
+                grad.addColorStop(1, `rgba(${this.color}, 0)`);
+                ctx.fillStyle = grad;
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size * 25, 0, Math.PI*2); ctx.fill();
+            } else {
+                ctx.fillStyle = 'white';
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
+            }
+            ctx.restore();
+        }
     }
 
-    /* Типографика */
-    .military-text { 
-        font-family: 'Oswald', sans-serif; 
-        text-transform: uppercase; 
-        letter-spacing: -0.02em; 
-        line-height: 0.9; 
-        filter: drop-shadow(0 0 30px rgba(0,0,0,1)); 
+    function init() { 
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight; 
+        souls = Array.from({length: 45}, () => new Particle(true)); 
+        stars = Array.from({length: 130}, () => new Particle(false)); 
     }
-    .text-hero { 
-        background: linear-gradient(to bottom, #fff 40%, #999 100%); 
-        -webkit-background-clip: text; 
-        -webkit-text-fill-color: transparent; 
-    }
-    .text-eternity { 
-        background: linear-gradient(to bottom, #ff4d4d 40%, #4a0000 100%); 
-        -webkit-background-clip: text; 
-        -webkit-text-fill-color: transparent; 
+    function animate() { 
+        ctx.fillStyle = '#050508'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        stars.forEach(s => { s.update(); s.draw(); }); 
+        souls.forEach(s => { s.update(); s.draw(); }); 
+        requestAnimationFrame(animate); 
     }
 
-    /* Фон Canvas */
-    #memorial-canvas { 
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-        pointer-events: none; z-index: 1; 
-    }
+    const firebaseConfig = { 
+        apiKey: "AIzaSyB7bTin28New3YE4GsgTjcJnzllzJn_-YI", 
+        authDomain: "geroivechnost.firebaseapp.com", 
+        projectId: "geroivechnost", 
+        storageBucket: "geroivechnost.firebasestorage.app", 
+        messagingSenderId: "571001236869", 
+        appId: "1:571001236869:web:26d2692cff6b4c49ada8ec" 
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
 
-    /* Элементы UI */
-    .btn-main { 
-        background: rgba(0,0,0,0.3); 
-        border: 1px solid rgba(255, 255, 255, 0.2); 
-        padding: 14px 40px; 
-        font-size: 12px; 
-        text-transform: uppercase; 
-        letter-spacing: 4px; 
-        transition: all 0.3s ease; 
-        color: rgba(255, 255, 255, 0.8); 
-        cursor: pointer;
-        backdrop-filter: blur(4px);
-    }
-    .btn-main:hover { 
-        background: white; color: black; border-color: white; 
-        transform: translateY(-2px); 
-        box-shadow: 0 0 20px rgba(255,255,255,0.2);
-    }
-    .btn-red:hover {
-        background: #ff4d4d; color: white; border-color: #ff4d4d;
-        box-shadow: 0 0 20px rgba(255, 77, 77, 0.4);
-    }
+    function login() { const provider = new firebase.auth.GoogleAuthProvider(); auth.signInWithRedirect(provider); }
+    function logout() { auth.signOut(); }
+    function checkAuthAndOpen() { if (auth.currentUser) { alert("Система готова к приему данных."); } else { openModal('auth'); } }
 
-    /* Модальные окна */
-    .modal {
-        display: none;
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0,0,0,0.85);
-        z-index: 1000;
-        backdrop-filter: blur(10px);
-        justify-content: center; align-items: center;
-        opacity: 0; transition: opacity 0.3s ease;
-    }
-    .modal.active { opacity: 1; }
-    
-    .modal-content {
-        background: #0a0a0c;
-        border: 1px solid rgba(255,255,255,0.1);
-        padding: 40px;
-        max-width: 600px; width: 90%;
-        text-align: center;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-        position: relative;
-    }
+    auth.onAuthStateChanged(user => {
+        const badge = document.getElementById('user-status');
+        const userName = document.getElementById('user-name');
+        if (user) { 
+            badge.style.display = 'flex'; 
+            userName.innerText = user.displayName; 
+            closeModal(); 
+        } else { 
+            badge.style.display = 'none'; 
+        }
+    });
 
-    /* Скроллбар для списка */
-    .custom-scroll::-webkit-scrollbar { width: 6px; }
-    .custom-scroll::-webkit-scrollbar-track {
+    function openModal(id) { document.getElementById('modal-' + id).style.display = 'flex'; }
+    function closeModal() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
+
+    window.addEventListener('resize', init);
+    init(); animate();
+</script>
+</body>
+</html>
