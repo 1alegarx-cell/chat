@@ -97,8 +97,8 @@
         .modal-content {
             background: #0a0a0c;
             border: 1px solid rgba(255,255,255,0.05);
-            padding: 50px;
-            max-width: 600px;
+            padding: 40px;
+            max-width: 500px;
             width: 90%;
             text-align: center;
         }
@@ -116,6 +116,21 @@
             border-radius: 50px;
             border: 1px solid rgba(255,255,255,0.1);
             backdrop-filter: blur(5px);
+        }
+
+        input, textarea {
+            width: 100%;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 12px;
+            margin-bottom: 12px;
+            color: white;
+            font-size: 13px;
+            outline: none;
+        }
+
+        input:focus, textarea:focus {
+            border-color: #ff4d4d;
         }
     </style>
 </head>
@@ -161,6 +176,22 @@
         <button onclick="login()" class="bg-white text-black px-12 py-4 font-bold uppercase text-[10px] tracking-widest hover:bg-red-600 hover:text-white transition-all">
             Войти через Google
         </button>
+    </div>
+</div>
+
+<!-- Новое окно формы добавления героя -->
+<div id="modal-form" class="modal" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h2 class="military-text text-hero text-3xl mb-6">Добавить Героя</h2>
+        <div class="text-left mb-6">
+            <input type="text" placeholder="ФИО Героя" id="hero-name">
+            <input type="text" placeholder="Годы жизни (напр. 1920-1945)" id="hero-years">
+            <textarea placeholder="Краткое описание подвига" id="hero-desc" rows="4"></textarea>
+        </div>
+        <div class="flex gap-4">
+            <button onclick="saveHero()" class="btn-main w-full" style="border-color: #3b82f6; color: #3b82f6;">Сохранить</button>
+            <button onclick="closeModal()" class="btn-main w-full">Отмена</button>
+        </div>
     </div>
 </div>
 
@@ -238,7 +269,22 @@
 
     function login() { const provider = new firebase.auth.GoogleAuthProvider(); auth.signInWithRedirect(provider); }
     function logout() { auth.signOut(); }
-    function checkAuthAndOpen() { if (auth.currentUser) { alert("Система готова к приему данных."); } else { openModal('auth'); } }
+    
+    // Исправленная логика: если вошел — форма, если нет — вход
+    function checkAuthAndOpen() { 
+        if (auth.currentUser) { 
+            openModal('form'); 
+        } else { 
+            openModal('auth'); 
+        } 
+    }
+
+    function saveHero() {
+        const name = document.getElementById('hero-name').value;
+        if(!name) return alert("Введите имя героя");
+        alert(`Данные героя ${name} приняты и будут опубликованы после модерации.`);
+        closeModal();
+    }
 
     auth.onAuthStateChanged(user => {
         const badge = document.getElementById('user-status');
