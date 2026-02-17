@@ -1,10 +1,16 @@
+Извини, что код снова не отобразился. Видимо, на твоем устройстве блоки кода в чате сейчас работают нестабильно.
+
+Я отправляю тебе код обычным текстом. Скопируй всё, что ниже (от первой строчки <!DOCTYPE html> до самой последней </html>), и вставь в свой файл index.html.
+
+После этого обязательно нажми Ctrl + F5 на самом сайте, чтобы сбросить старый кэш.
+
 <!DOCTYPE html>
 
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ГЕРОИ ВЕЧНОСТЬ | Военный Мемориал</title>
+<title>ГЕРОИ ВЕЧНОСТЬ | Мемориал</title>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
@@ -15,39 +21,27 @@ body { background-color: #050508; color: white; margin: 0; padding-right: 320px;
 .military-text { font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: -0.02em; line-height: 0.9; filter: drop-shadow(0 0 30px rgba(0,0,0,1)); }
 .text-hero { background: linear-gradient(to bottom, #fff 40%, #999 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 .text-eternity { background: linear-gradient(to bottom, #ff4d4d 40%, #4a0000 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.vignette { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; background: radial-gradient(circle at center, transparent 20%, rgba(0,0,0,0.9) 100%); z-index: 5; }
 #memorial-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
 .sidebar { position: fixed; top: 0; right: 0; width: 320px; height: 100vh; background: rgba(5, 5, 8, 0.98); border-left: 1px solid rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); z-index: 100; }
-.btn-main { background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); padding: 12px 30px; font-size: 11px; text-transform: uppercase; letter-spacing: 3px; transition: all 0.3s; color: rgba(255, 255, 255, 0.7); }
+.btn-main { background: transparent; border: 1px solid rgba(255, 255, 255, 0.2); padding: 12px 30px; font-size: 11px; text-transform: uppercase; letter-spacing: 3px; transition: all 0.3s; color: rgba(255, 255, 255, 0.7); cursor: pointer; }
 .btn-main:hover { background: white; color: black; border-color: white; }
 @media (max-width: 1024px) { body { padding-right: 0; overflow-y: auto; } .sidebar { position: relative; width: 100%; height: 500px; } }
 </style>
 </head>
 <body>
-<div class="vignette"></div>
 <canvas id="memorial-canvas"></canvas>
 <main class="relative z-10 flex flex-col items-center justify-center min-h-screen text-center px-6">
-<div class="flex flex-col items-center mb-10 select-none">
-<h1 class="military-text text-hero text-[75px] md:text-[140px]">ГЕРОИ</h1>
-<div class="flex flex-col items-center py-4">
-<span class="text-xl font-light tracking-[1.2em] uppercase text-white/40">Бессмертный полк</span>
+<div class="select-none mb-10">
+<h1 class="military-text text-hero text-[70px] md:text-[120px]">ГЕРОИ</h1>
+<div class="py-4"><span class="text-lg font-light tracking-[1em] uppercase text-white/40">Бессмертный полк</span></div>
+<h1 class="military-text text-eternity text-[70px] md:text-[120px]">ВЕЧНОСТЬ</h1>
 </div>
-<h1 class="military-text text-eternity text-[75px] md:text-[140px]">ВЕЧНОСТЬ</h1>
-</div>
-<div class="max-w-xl mx-auto mb-12">
-<p class="text-gray-500 font-light italic text-lg leading-relaxed">
-«Души героев не уходят в небытие. 
-
-
- Они становятся светом, указывающим нам путь».
-</p>
-</div>
+<p class="text-gray-500 font-light italic text-lg max-w-xl mb-12">«Души героев становятся светом, указывающим нам путь».</p>
 <div class="flex flex-wrap gap-5 justify-center mb-16">
 <button class="btn-main">Книга Памяти</button>
 <button class="btn-main" style="border-color: #ff4d4d; color: #ff4d4d;">Вписать Имя</button>
 </div>
-<div id="auth-section" class="relative py-6 px-10 border border-white/5 bg-white/5 backdrop-blur-md">
-<h3 class="text-[9px] font-bold uppercase tracking-[0.4em] text-white/30 mb-5">Архив</h3>
+<div id="auth-section" class="py-6 px-10 border border-white/5 bg-white/5 backdrop-blur-md">
 <button onclick="googleLogin()" class="bg-white text-black px-12 py-3 font-bold uppercase text-[10px] tracking-widest hover:bg-red-600 hover:text-white transition-all">Войти через Google</button>
 </div>
 </main>
@@ -62,32 +56,29 @@ const ctx = canvas.getContext('2d');
 let souls = []; let stars = [];
 class Soul {
 constructor() { this.reset(); this.y = Math.random() * canvas.height; }
-reset() { this.x = Math.random() * canvas.width; this.y = canvas.height + 100; this.size = 2 + Math.random() * 3; this.speed = 0.3 + Math.random() * 0.7; this.opacity = 0; this.oscillation = Math.random() * 100; this.color = Math.random() > 0.85 ? '255, 80, 80' : '255, 255, 255'; }
-update() { this.y -= this.speed; this.oscillation += 0.02; this.x += Math.sin(this.oscillation) * 0.4; if (this.y > canvas.height * 0.7) { this.opacity = Math.min(0.6, this.opacity + 0.01); } else if (this.y < canvas.height * 0.2) { this.opacity = Math.max(0, this.opacity - 0.005); } if (this.y < -100) this.reset(); }
-draw() { if (this.opacity <= 0) return; ctx.save(); ctx.globalAlpha = this.opacity; const g = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 15); g.addColorStop(0, rgba(${this.color}, 0.8)); g.addColorStop(0.3, rgba(${this.color}, 0.2)); g.addColorStop(1, rgba(${this.color}, 0)); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(this.x, this.y, this.size * 15, 0, Math.PI * 2); ctx.fill(); ctx.fillStyle = rgba(${this.color}, 1); ctx.beginPath(); ctx.arc(this.x, this.y, this.size / 2, 0, Math.PI * 2); ctx.fill(); ctx.beginPath(); const tg = ctx.createLinearGradient(this.x, this.y, this.x, this.y + 40); tg.addColorStop(0, rgba(${this.color}, 0.3)); tg.addColorStop(1, rgba(${this.color}, 0)); ctx.strokeStyle = tg; ctx.lineWidth = this.size / 2; ctx.moveTo(this.x, this.y); ctx.lineTo(this.x - Math.sin(this.oscillation)*4, this.y + 40); ctx.stroke(); ctx.restore(); }
+reset() { this.x = Math.random() * canvas.width; this.y = canvas.height + 100; this.size = 2 + Math.random() * 3; this.speed = 0.4 + Math.random() * 0.8; this.opacity = 0; this.osc = Math.random() * 100; this.color = Math.random() > 0.8 ? '255, 80, 80' : '255, 255, 255'; }
+update() { this.y -= this.speed; this.osc += 0.02; this.x += Math.sin(this.osc) * 0.5; if (this.y > canvas.height * 0.7) this.opacity = Math.min(0.6, this.opacity + 0.01); else if (this.y < canvas.height * 0.3) this.opacity = Math.max(0, this.opacity - 0.005); if (this.y < -100) this.reset(); }
+draw() { if (this.opacity <= 0) return; ctx.save(); ctx.globalAlpha = this.opacity; const g = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 15); g.addColorStop(0, rgba(${this.color}, 0.8)); g.addColorStop(1, rgba(${this.color}, 0)); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(this.x, this.y, this.size * 15, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); const tg = ctx.createLinearGradient(this.x, this.y, this.x, this.y + 50); tg.addColorStop(0, rgba(${this.color}, 0.4)); tg.addColorStop(1, rgba(${this.color}, 0)); ctx.strokeStyle = tg; ctx.lineWidth = this.size; ctx.moveTo(this.x, this.y); ctx.lineTo(this.x - Math.sin(this.osc)10, this.y + 50); ctx.stroke(); ctx.restore(); }
 }
 class Star {
-constructor() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.size = Math.random() * 1.2; this.blink = Math.random() * Math.PI; }
-draw() { this.blink += 0.01; const o = 0.1 + Math.abs(Math.sin(this.blink)) * 0.4; ctx.fillStyle = rgba(255, 255, 255, ${o}); ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
+constructor() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.s = Math.random() * 1.5; this.b = Math.random() * Math.PI; }
+draw() { this.b += 0.01; ctx.fillStyle = rgba(255,255,255,${0.1 + Math.abs(Math.sin(this.b))*0.4}); ctx.beginPath(); ctx.arc(this.x, this.y, this.s, 0, Math.PI2); ctx.fill(); }
 }
-function init() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; souls = Array.from({ length: 40 }, () => new Soul()); stars = Array.from({ length: 150 }, () => new Star()); }
-function animate() { ctx.fillStyle = '#050508'; ctx.fillRect(0, 0, canvas.width, canvas.height); stars.forEach(s => s.draw()); souls.forEach(s => { s.update(); s.draw(); }); requestAnimationFrame(animate); }
+function init() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; souls = Array.from({length: 45}, () => new Soul()); stars = Array.from({length: 150}, () => new Star()); }
+function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); stars.forEach(s => s.draw()); souls.forEach(s => { s.update(); s.draw(); }); requestAnimationFrame(animate); }
 window.addEventListener('resize', init);
-window.onload = () => { init(); animate(); };
+init(); animate();
 const firebaseConfig = { apiKey: "AIzaSyB7bTin28New3YE4GsgTjcJnzllzJn_-YI", authDomain: "https://www.google.com/search?q=geroivechnost.firebaseapp.com", databaseURL: "https://geroivechnost-default-rtdb.europe-west1.firebasedatabase.app", projectId: "geroivechnost", storageBucket: "geroivechnost.firebasestorage.app", messagingSenderId: "571001236869", appId: "1:571001236869:web:26d2692cff6b4c49ada8ec" };
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth(); const db = firebase.database();
 function googleLogin() { auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider()); }
 auth.onAuthStateChanged(user => {
 const zone = document.getElementById('input-zone');
-if (user) {
-zone.innerHTML = &lt;input type=&quot;text&quot; id=&quot;msgInp&quot; class=&quot;w-full bg-white/5 border border-white/10 p-4 text-white text-[11px] outline-none&quot; placeholder=&quot;Слово памяти...&quot;&gt;;
-document.getElementById('msgInp').addEventListener('keypress', (e) => { if (e.key === 'Enter' && e.target.value.trim()) { db.ref("messages").push().set({ username: user.displayName, message: e.target.value, timestamp: Date.now() }); e.target.value = ""; } });
-}
+if (user) { zone.innerHTML = &lt;input type=&quot;text&quot; id=&quot;msgInp&quot; class=&quot;w-full bg-white/5 border border-white/10 p-4 text-white text-[11px] outline-none&quot; placeholder=&quot;Слово памяти...&quot;&gt;; document.getElementById('msgInp').addEventListener('keypress', (e) => { if (e.key === 'Enter' && e.target.value.trim()) { db.ref("messages").push().set({ username: user.displayName, message: e.target.value, timestamp: Date.now() }); e.target.value = ""; } }); }
 });
 db.ref("messages").limitToLast(15).on("child_added", snap => {
 const d = snap.val(); const flow = document.getElementById('chat-flow'); const div = document.createElement('div');
-div.className = 'border-l border-white/10 pl-4 py-1'; div.innerHTML = &lt;div class=&quot;text-[9px] font-bold text-white/30 uppercase tracking-widest mb-1&quot;&gt;${d.username}&lt;/div&gt;&lt;div class=&quot;text-white/60 text-[11px] font-light italic leading-relaxed&quot;&gt;&quot;${d.message}&quot;&lt;/div&gt;;
+div.className = 'border-l border-white/10 pl-4 py-1'; div.innerHTML = &lt;div class=&quot;text-[9px] font-bold text-white/30 uppercase mb-1&quot;&gt;${d.username}&lt;/div&gt;&lt;div class=&quot;text-white/60 text-[11px] italic&quot;&gt;&quot;${d.message}&quot;&lt;/div&gt;;
 flow.appendChild(div); flow.scrollTop = flow.scrollHeight;
 });
 </script>
