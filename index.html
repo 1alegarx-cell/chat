@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ГЕРОИ ВЕЧНОСТЬ | Мемориал</title>
+<title>ГЕРОИ ВЕЧНОСТЬ | Официальный Мемориал</title>
 
 <!-- Firebase SDK -->
 <script src="[https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js](https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js)"></script>
@@ -106,22 +106,25 @@
         padding: 8px 16px;
         border-radius: 50px;
         border: 1px solid rgba(255,255,255,0.1);
+        backdrop-filter: blur(5px);
     }
 </style>
 </head>
 <body>
 <canvas id="memorial-canvas"></canvas>
 
+<!-- User Badge -->
 <div id="user-status" class="hidden user-badge">
     <span id="user-name" class="text-[10px] uppercase tracking-widest text-white/60"></span>
     <button onclick="logout()" class="text-[9px] text-red-500 uppercase font-bold hover:text-white transition-colors">Выйти</button>
 </div>
 
+<!-- Main UI -->
 <main class="relative z-10 flex flex-col items-center justify-center min-h-screen text-center px-6">
     <div class="select-none mb-12 transform scale-90 md:scale-100">
         <h1 class="military-text text-hero text-[80px] md:text-[140px]">ГЕРОИ</h1>
         <div class="py-4">
-            <span class="text-xl font-light tracking-[1.2em] uppercase text-white/40">Бессмертный полк</span>
+            <span class="text-xl font-light tracking-[1.2em] uppercase text-white/40">ОФИЦИАЛЬНЫЙ МЕМОРИАЛ</span>
         </div>
         <h1 class="military-text text-eternity text-[80px] md:text-[140px]">ВЕЧНОСТЬ</h1>
     </div>
@@ -136,6 +139,7 @@
     </div>
 </main>
 
+<!-- Modal: Book -->
 <div id="modal-book" class="modal" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
         <h2 class="military-text text-hero text-4xl mb-6">Книга Памяти</h2>
@@ -144,10 +148,11 @@
     </div>
 </div>
 
+<!-- Modal: Auth -->
 <div id="modal-auth" class="modal" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
         <h2 class="military-text text-eternity text-4xl mb-6">Авторизация</h2>
-        <p class="text-gray-400 mb-8 font-light">Пожалуйста, войдите через Google, чтобы иметь возможность вписывать имена.</p>
+        <p class="text-gray-400 mb-8 font-light">Пожалуйста, войдите через Google, чтобы вписать имя героя в мемориал.</p>
         <button onclick="login()" class="bg-white text-black px-12 py-4 font-bold uppercase text-[10px] tracking-widest hover:bg-red-600 hover:text-white transition-all">
             Войти через Google
         </button>
@@ -236,7 +241,7 @@
 
     function checkAuthAndOpen() {
         if (auth.currentUser) {
-            alert("Форма добавления откроется в ближайшее время.");
+            alert("Форма подачи данных будет доступна в ближайшем обновлении.");
         } else {
             openModal('auth');
         }
