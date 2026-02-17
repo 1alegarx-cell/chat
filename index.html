@@ -44,7 +44,6 @@
             -webkit-text-fill-color: transparent; 
         }
 
-        /* Синий неоновый текст */
         .text-official {
             color: #3b82f6;
             text-shadow: 0 0 15px rgba(59, 130, 246, 0.9), 0 0 30px rgba(59, 130, 246, 0.5);
@@ -98,9 +97,11 @@
             background: #0a0a0c;
             border: 1px solid rgba(255,255,255,0.05);
             padding: 40px;
-            max-width: 500px;
-            width: 90%;
+            max-width: 600px;
+            width: 95%;
             text-align: center;
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .user-badge {
@@ -125,12 +126,24 @@
             padding: 12px;
             margin-bottom: 12px;
             color: white;
-            font-size: 13px;
+            font-size: 14px;
             outline: none;
+            border-radius: 4px;
         }
 
         input:focus, textarea:focus {
-            border-color: #ff4d4d;
+            border-color: #3b82f6;
+            background: rgba(255,255,255,0.06);
+        }
+
+        label {
+            display: block;
+            text-align: left;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 4px;
         }
     </style>
 </head>
@@ -157,39 +170,64 @@
 
     <div class="flex flex-col md:flex-row gap-8 justify-center items-center">
         <button onclick="openModal('book')" class="btn-main">Книга Памяти</button>
-        <button onclick="checkAuthAndOpen()" class="btn-main" style="border-color: #ff4d4d; color: #ff4d4d;">Вписать Имя</button>
+        <button id="main-action-btn" onclick="checkAuthAndOpen()" class="btn-main" style="border-color: #ff4d4d; color: #ff4d4d;">Вписать Имя</button>
     </div>
 </main>
 
+<!-- Книга Памяти -->
 <div id="modal-book" class="modal" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
         <h2 class="military-text text-hero text-4xl mb-6">Книга Памяти</h2>
-        <p class="text-gray-400 mb-8 font-light">Раздел находится в разработке. Имена героев синхронизируются.</p>
+        <p class="text-gray-400 mb-8 font-light">Список воинов формируется. Мы бережно храним каждую историю.</p>
+        <div id="memorial-list" class="text-left space-y-4 mb-8">
+            <!-- Здесь будут отображаться добавленные воины -->
+        </div>
         <button onclick="closeModal()" class="btn-main">Назад</button>
     </div>
 </div>
 
+<!-- Окно авторизации -->
 <div id="modal-auth" class="modal" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
-        <h2 class="military-text text-eternity text-4xl mb-6">Авторизация</h2>
-        <p class="text-gray-400 mb-8 font-light">Пожалуйста, войдите через Google, чтобы продолжить работу с мемориалом.</p>
-        <button onclick="login()" class="bg-white text-black px-12 py-4 font-bold uppercase text-[10px] tracking-widest hover:bg-red-600 hover:text-white transition-all">
+        <h2 class="military-text text-eternity text-4xl mb-6">Вход в систему</h2>
+        <p class="text-gray-400 mb-8 font-light">Чтобы увековечить подвиг воина, необходимо подтвердить личность через Google.</p>
+        <button onclick="login()" class="bg-white text-black px-12 py-4 font-bold uppercase text-[10px] tracking-widest hover:bg-blue-600 hover:text-white transition-all w-full mb-4">
             Войти через Google
         </button>
+        <button onclick="closeModal()" class="text-[10px] uppercase tracking-widest text-white/30 hover:text-white">Отмена</button>
     </div>
 </div>
 
-<!-- Новое окно формы добавления героя -->
+<!-- Окно анкеты воина -->
 <div id="modal-form" class="modal" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
-        <h2 class="military-text text-hero text-3xl mb-6">Добавить Героя</h2>
-        <div class="text-left mb-6">
-            <input type="text" placeholder="ФИО Героя" id="hero-name">
-            <input type="text" placeholder="Годы жизни (напр. 1920-1945)" id="hero-years">
-            <textarea placeholder="Краткое описание подвига" id="hero-desc" rows="4"></textarea>
+        <h2 class="military-text text-hero text-3xl mb-6">Анкета Воина</h2>
+        <div class="space-y-4 text-left">
+            <div>
+                <label>Полное имя воина</label>
+                <input type="text" placeholder="Фамилия Имя Отчество" id="hero-name">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label>Дата рождения</label>
+                    <input type="text" placeholder="ДД.ММ.ГГГГ" id="hero-birth">
+                </div>
+                <div>
+                    <label>Дата подвига / гибели</label>
+                    <input type="text" placeholder="ДД.ММ.ГГГГ" id="hero-death">
+                </div>
+            </div>
+            <div>
+                <label>Заслуги и боевой путь</label>
+                <textarea placeholder="Опишите историю героя, его подвиги и путь..." id="hero-desc" rows="3"></textarea>
+            </div>
+            <div>
+                <label>Награды и медали</label>
+                <input type="text" placeholder="Список наград через запятую" id="hero-medals">
+            </div>
         </div>
-        <div class="flex gap-4">
-            <button onclick="saveHero()" class="btn-main w-full" style="border-color: #3b82f6; color: #3b82f6;">Сохранить</button>
+        <div class="flex gap-4 mt-8">
+            <button onclick="saveHero()" class="btn-main w-full" style="border-color: #3b82f6; color: #3b82f6;">Сохранить в вечности</button>
             <button onclick="closeModal()" class="btn-main w-full">Отмена</button>
         </div>
     </div>
@@ -267,10 +305,25 @@
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
-    function login() { const provider = new firebase.auth.GoogleAuthProvider(); auth.signInWithRedirect(provider); }
-    function logout() { auth.signOut(); }
+    function login() { 
+        const provider = new firebase.auth.GoogleAuthProvider(); 
+        auth.signInWithRedirect(provider); 
+    }
     
-    // Исправленная логика: если вошел — форма, если нет — вход
+    function logout() { 
+        auth.signOut(); 
+    }
+
+    // Проверка результата редиректа при загрузке
+    auth.getRedirectResult().then((result) => {
+        if (result.user) {
+            console.log("Успешный вход после редиректа");
+            openModal('form');
+        }
+    }).catch((error) => {
+        console.error("Ошибка авторизации:", error);
+    });
+    
     function checkAuthAndOpen() { 
         if (auth.currentUser) { 
             openModal('form'); 
@@ -281,20 +334,33 @@
 
     function saveHero() {
         const name = document.getElementById('hero-name').value;
-        if(!name) return alert("Введите имя героя");
-        alert(`Данные героя ${name} приняты и будут опубликованы после модерации.`);
+        const medals = document.getElementById('hero-medals').value;
+        if(!name) return alert("Пожалуйста, введите имя героя");
+        
+        // В реальном приложении здесь будет db.collection('heroes').add(...)
+        alert(`Герой ${name} будет вписан в вечность. Награды: ${medals || 'не указаны'}. Данные отправлены на модерацию.`);
         closeModal();
     }
 
     auth.onAuthStateChanged(user => {
         const badge = document.getElementById('user-status');
         const userName = document.getElementById('user-name');
+        const mainBtn = document.getElementById('main-action-btn');
+        
         if (user) { 
             badge.style.display = 'flex'; 
-            userName.innerText = user.displayName; 
-            closeModal(); 
+            userName.innerText = user.displayName;
+            mainBtn.innerText = "Добавить Историю";
+            mainBtn.style.borderColor = "#3b82f6";
+            mainBtn.style.color = "#3b82f6";
+            // Если модалка авторизации открыта - закрываем её
+            const authModal = document.getElementById('modal-auth');
+            if (authModal.style.display === 'flex') closeModal();
         } else { 
             badge.style.display = 'none'; 
+            mainBtn.innerText = "Вписать Имя";
+            mainBtn.style.borderColor = "#ff4d4d";
+            mainBtn.style.color = "#ff4d4d";
         }
     });
 
