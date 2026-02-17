@@ -8,6 +8,7 @@
     <!-- Firebase SDK Legacy -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -54,12 +55,8 @@
 
         #memorial-canvas { 
             position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            pointer-events: none; 
-            z-index: 1; 
+            top: 0; left: 0; width: 100%; height: 100%; 
+            pointer-events: none; z-index: 1; 
         }
 
         .btn-main { 
@@ -76,9 +73,7 @@
         }
 
         .btn-main:hover { 
-            background: white; 
-            color: black; 
-            border-color: white; 
+            background: white; color: black; border-color: white; 
             transform: translateY(-2px);
             box-shadow: 0 10px 30px rgba(255,255,255,0.15);
         }
@@ -97,7 +92,7 @@
             background: #0a0a0c;
             border: 1px solid rgba(255,255,255,0.05);
             padding: 40px;
-            max-width: 600px;
+            max-width: 850px;
             width: 95%;
             text-align: center;
             max-height: 90vh;
@@ -112,14 +107,14 @@
             display: none;
             align-items: center;
             gap: 12px;
-            background: rgba(255,255,255,0.05);
+            background: rgba(255,255,255,0.1);
             padding: 8px 16px;
             border-radius: 50px;
-            border: 1px solid rgba(255,255,255,0.1);
-            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
         }
 
-        input, textarea {
+        input, textarea, select {
             width: 100%;
             background: rgba(255,255,255,0.03);
             border: 1px solid rgba(255,255,255,0.1);
@@ -130,20 +125,29 @@
             outline: none;
             border-radius: 4px;
         }
-
-        input:focus, textarea:focus {
-            border-color: #3b82f6;
-            background: rgba(255,255,255,0.06);
+        
+        select option {
+            background: #0a0a0c;
+            color: white;
         }
 
-        label {
-            display: block;
+        .hero-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 24px;
+            margin-bottom: 20px;
             text-align: left;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .status-indicator {
             font-size: 10px;
+            padding: 3px 10px;
+            border-radius: 4px;
             text-transform: uppercase;
+            font-weight: 900;
             letter-spacing: 1px;
-            color: rgba(255,255,255,0.5);
-            margin-bottom: 4px;
         }
     </style>
 </head>
@@ -151,8 +155,10 @@
 <canvas id="memorial-canvas"></canvas>
 
 <div id="user-status" class="user-badge">
-    <span id="user-name" class="text-[10px] uppercase tracking-widest text-white/60"></span>
-    <button onclick="logout()" class="text-[9px] text-red-500 uppercase font-bold hover:text-white ml-2">Выйти</button>
+    <div id="admin-marker" class="hidden w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,1)]"></div>
+    <div id="online-marker" class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+    <span id="user-name" class="text-[10px] uppercase tracking-widest text-white font-bold"></span>
+    <button onclick="logout()" class="text-[9px] text-red-500 uppercase font-bold hover:text-white border-l border-white/10 pl-3 ml-2 transition-colors">Выйти</button>
 </div>
 
 <main class="relative z-10 flex flex-col items-center justify-center min-h-screen text-center px-6">
@@ -164,12 +170,8 @@
         <h1 class="military-text text-eternity text-[80px] md:text-[140px]">ВЕЧНОСТЬ</h1>
     </div>
 
-    <p class="text-gray-500 font-light italic text-xl max-w-2xl mb-16">
-        «Души героев не уходят в небытие. Они становятся светом, указывающим путь».
-    </p>
-
     <div class="flex flex-col md:flex-row gap-8 justify-center items-center">
-        <button onclick="openModal('book')" class="btn-main">Книга Памяти</button>
+        <button onclick="loadBook()" class="btn-main">Книга Памяти</button>
         <button id="main-action-btn" onclick="checkAuthAndOpen()" class="btn-main" style="border-color: #ff4d4d; color: #ff4d4d;">Вписать Имя</button>
     </div>
 </main>
@@ -178,119 +180,86 @@
 <div id="modal-book" class="modal" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
         <h2 class="military-text text-hero text-4xl mb-6">Книга Памяти</h2>
-        <p class="text-gray-400 mb-8 font-light">Список воинов формируется. Мы бережно храним каждую историю.</p>
-        <div id="memorial-list" class="text-left space-y-4 mb-8"></div>
-        <button onclick="closeModal()" class="btn-main">Назад</button>
+        <div id="heroes-list" class="space-y-4 mb-8 max-h-[60vh] overflow-y-auto pr-2">
+            <p class="text-gray-500 italic">Запрос в архив...</p>
+        </div>
+        <button onclick="closeModal()" class="btn-main">Закрыть</button>
     </div>
 </div>
 
-<!-- Окно авторизации -->
+<!-- Авторизация -->
 <div id="modal-auth" class="modal" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
-        <h2 class="military-text text-eternity text-4xl mb-6">Вход в систему</h2>
-        <p class="text-gray-400 mb-8 font-light">Чтобы увековечить подвиг воина, необходимо подтвердить личность через Google.</p>
-        <button onclick="login()" id="login-google-btn" class="bg-white text-black px-12 py-4 font-bold uppercase text-[10px] tracking-widest hover:bg-blue-600 hover:text-white transition-all w-full mb-4">
-            Войти через Google
-        </button>
-        <button onclick="closeModal()" class="text-[10px] uppercase tracking-widest text-white/30 hover:text-white">Отмена</button>
+        <h2 class="military-text text-eternity text-4xl mb-6">Авторизация</h2>
+        <p class="text-gray-400 mb-8 font-light">Войдите через Google, чтобы добавить историю героя.</p>
+        <div class="flex flex-col gap-4">
+            <button onclick="login()" class="bg-white text-black px-12 py-4 font-bold uppercase text-[10px] tracking-widest hover:bg-blue-600 hover:text-white transition-all w-full">
+                Войти через Google
+            </button>
+            <button onclick="closeModal()" class="btn-main w-full" style="border-color: rgba(255,255,255,0.1);">
+                Вернуться на главную
+            </button>
+        </div>
     </div>
 </div>
 
-<!-- Окно анкеты воина (Добавление заслуг и медалей) -->
+<!-- Расширенная Форма анкеты -->
 <div id="modal-form" class="modal" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
         <h2 class="military-text text-hero text-3xl mb-6">Анкета Воина</h2>
         <div class="space-y-4 text-left">
             <div>
-                <label>Полное имя воина</label>
-                <input type="text" placeholder="Фамилия Имя Отчество" id="hero-name">
+                <label class="text-[10px] uppercase text-gray-500">ФИО Героя</label>
+                <input type="text" placeholder="Иванов Иван Иванович" id="hero-name">
             </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="text-[10px] uppercase text-gray-500">Место рождения / Службы</label>
+                    <input type="text" placeholder="Город, регион" id="hero-location">
+                </div>
+                <div>
+                    <label class="text-[10px] uppercase text-gray-500">Текущий статус</label>
+                    <select id="hero-status-life">
+                        <option value="alive">Жив (Ветеран / Участник)</option>
+                        <option value="fallen">Погиб при исполнении</option>
+                        <option value="missing">Пропал без вести</option>
+                        <option value="deceased">Скончался в мирное время</option>
+                    </select>
+                </div>
+            </div>
+
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label>Дата рождения</label>
-                    <input type="text" placeholder="ДД.ММ.ГГГГ" id="hero-birth">
+                    <label class="text-[10px] uppercase text-gray-500">Год рождения</label>
+                    <input type="text" placeholder="1990" id="hero-birth">
                 </div>
                 <div>
-                    <label>Дата подвига / гибели</label>
-                    <input type="text" placeholder="ДД.ММ.ГГГГ" id="hero-death">
+                    <label class="text-[10px] uppercase text-gray-500">Дата подвига / смерти (если применимо)</label>
+                    <input type="text" placeholder="2024" id="hero-death">
                 </div>
             </div>
+
             <div>
-                <label>Заслуги и боевой путь</label>
-                <textarea placeholder="Опишите историю героя, его подвиги и путь..." id="hero-desc" rows="3"></textarea>
+                <label class="text-[10px] uppercase text-gray-500">Заслуги и боевой путь</label>
+                <textarea id="hero-desc" rows="4" placeholder="Опишите историю подвига, ключевые сражения..."></textarea>
             </div>
+            
             <div>
-                <label>Награды и медали</label>
-                <input type="text" placeholder="Список наград через запятую" id="hero-medals">
+                <label class="text-[10px] uppercase text-gray-500">Награды</label>
+                <input type="text" id="hero-medals" placeholder="Ордена, медали">
             </div>
         </div>
         <div class="flex gap-4 mt-8">
-            <button onclick="saveHero()" class="btn-main w-full" style="border-color: #3b82f6; color: #3b82f6;">Сохранить в вечности</button>
+            <button onclick="saveHeroToDB()" id="save-btn" class="btn-main w-full" style="border-color: #3b82f6; color: #3b82f6;">Отправить на модерацию</button>
             <button onclick="closeModal()" class="btn-main w-full">Отмена</button>
         </div>
     </div>
 </div>
 
 <script>
-    const canvas = document.getElementById('memorial-canvas');
-    const ctx = canvas.getContext('2d');
-    let souls = []; let stars = [];
-
-    class Particle {
-        constructor(isSoul) {
-            this.isSoul = isSoul;
-            this.reset();
-            if(!isSoul) this.y = Math.random() * canvas.height;
-        }
-        reset() {
-            this.x = Math.random() * canvas.width;
-            this.y = this.isSoul ? canvas.height + 100 : Math.random() * canvas.height;
-            this.size = this.isSoul ? (1.5 + Math.random() * 2) : Math.random() * 1.2;
-            this.speed = this.isSoul ? (0.3 + Math.random() * 0.6) : 0;
-            this.opacity = this.isSoul ? 0 : Math.random();
-            this.osc = Math.random() * 100;
-            this.color = Math.random() > 0.85 ? '255, 77, 77' : '255, 255, 255';
-        }
-        update() {
-            if(this.isSoul) {
-                this.y -= this.speed;
-                this.osc += 0.02;
-                this.x += Math.sin(this.osc) * 0.5;
-                if (this.y > canvas.height * 0.4) this.opacity = Math.min(0.5, this.opacity + 0.005);
-                else if (this.y < canvas.height * 0.2) this.opacity = Math.max(0, this.opacity - 0.005);
-                if (this.y < -100) this.reset();
-            } else {
-                this.opacity = 0.1 + Math.abs(Math.sin(Date.now() * 0.001 + this.osc)) * 0.4;
-            }
-        }
-        draw() {
-            ctx.save();
-            ctx.globalAlpha = this.opacity;
-            if(this.isSoul) {
-                const grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 25);
-                grad.addColorStop(0, `rgba(${this.color}, 0.8)`);
-                grad.addColorStop(1, `rgba(${this.color}, 0)`);
-                ctx.fillStyle = grad;
-                ctx.beginPath(); ctx.arc(this.x, this.y, this.size * 25, 0, Math.PI*2); ctx.fill();
-            } else {
-                ctx.fillStyle = 'white';
-                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
-            }
-            ctx.restore();
-        }
-    }
-
-    function init() { 
-        canvas.width = window.innerWidth; canvas.height = window.innerHeight; 
-        souls = Array.from({length: 45}, () => new Particle(true)); 
-        stars = Array.from({length: 130}, () => new Particle(false)); 
-    }
-    function animate() { 
-        ctx.fillStyle = '#050508'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-        stars.forEach(s => { s.update(); s.draw(); }); 
-        souls.forEach(s => { s.update(); s.draw(); }); 
-        requestAnimationFrame(animate); 
-    }
+    // --- Конфигурация ---
+    const ADMIN_EMAIL = "ВАША_ПОЧТА@gmail.com"; 
 
     const firebaseConfig = { 
         apiKey: "AIzaSyB7bTin28New3YE4GsgTjcJnzllzJn_-YI", 
@@ -302,70 +271,194 @@
     };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
+    const db = firebase.firestore();
+
+    // --- Авторизация ---
+    auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
     function login() { 
         const provider = new firebase.auth.GoogleAuthProvider(); 
-        auth.signInWithRedirect(provider); 
+        auth.signInWithPopup(provider).then(() => openModal('form')).catch(err => alert(err.message));
     }
     
-    function logout() { 
-        auth.signOut().then(() => {
-            window.location.reload();
-        }); 
-    }
-
-    // КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ: Автоматический переход к форме после редиректа
-    auth.getRedirectResult().then((result) => {
-        if (result.user) {
-            setTimeout(() => openModal('form'), 500);
-        }
-    }).catch((error) => {
-        console.error("Auth error:", error);
-    });
-    
-    function checkAuthAndOpen() { 
-        if (auth.currentUser) { 
-            openModal('form'); 
-        } else { 
-            openModal('auth'); 
-        } 
-    }
-
-    function saveHero() {
-        const name = document.getElementById('hero-name').value;
-        if(!name) return alert("Пожалуйста, введите имя героя");
-        alert(`Герой ${name} успешно внесен в базу мемориала. После модерации он появится в Книге Памяти.`);
-        closeModal();
-    }
+    function logout() { auth.signOut().then(() => window.location.reload()); }
 
     auth.onAuthStateChanged(user => {
         const badge = document.getElementById('user-status');
         const userName = document.getElementById('user-name');
+        const adminMarker = document.getElementById('admin-marker');
         const mainBtn = document.getElementById('main-action-btn');
         
         if (user) { 
             badge.style.display = 'flex'; 
             userName.innerText = user.displayName;
-            mainBtn.innerText = "Добавить Героя";
+            if (user.email === ADMIN_EMAIL) adminMarker.classList.remove('hidden');
+            mainBtn.innerText = "Добавить Историю";
             mainBtn.style.borderColor = "#3b82f6";
             mainBtn.style.color = "#3b82f6";
-            // Если модалка входа висит — убираем её немедленно
-            const authModal = document.getElementById('modal-auth');
-            if (authModal.style.display === 'flex') closeModal();
-        } else { 
-            badge.style.display = 'none'; 
-            mainBtn.innerText = "Вписать Имя";
-            mainBtn.style.borderColor = "#ff4d4d";
-            mainBtn.style.color = "#ff4d4d";
+            if (document.getElementById('modal-auth').style.display === 'flex') closeModal();
+        } else {
+            badge.style.display = 'none';
         }
     });
 
-    function openModal(id) { 
-        closeModal(); // Закрываем все остальные перед открытием новой
-        document.getElementById('modal-' + id).style.display = 'flex'; 
-    }
-    function closeModal() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
+    function checkAuthAndOpen() { if (auth.currentUser) openModal('form'); else openModal('auth'); }
 
+    // --- Работа с базой данных ---
+    async function saveHeroToDB() {
+        const name = document.getElementById('hero-name').value;
+        if(!name) return alert("Введите имя героя");
+        
+        const saveBtn = document.getElementById('save-btn');
+        saveBtn.disabled = true;
+        saveBtn.innerText = "Передача данных...";
+
+        try {
+            await db.collection('heroes').add({
+                name: name,
+                location: document.getElementById('hero-location').value,
+                lifeStatus: document.getElementById('hero-status-life').value,
+                birth: document.getElementById('hero-birth').value,
+                death: document.getElementById('hero-death').value,
+                desc: document.getElementById('hero-desc').value,
+                medals: document.getElementById('hero-medals').value,
+                userId: auth.currentUser.uid,
+                userName: auth.currentUser.displayName,
+                status: 'pending',
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            alert("Данные успешно отправлены. После проверки администратором они появятся в Книге Памяти.");
+            closeModal();
+        } catch (e) {
+            alert("Ошибка сохранения: " + e.message);
+        } finally {
+            saveBtn.disabled = false;
+            saveBtn.innerText = "Отправить на модерацию";
+        }
+    }
+
+    const statusLabels = {
+        'alive': { text: 'Жив', color: 'bg-green-900/40 text-green-400 border border-green-500/30' },
+        'fallen': { text: 'Погиб', color: 'bg-red-900/40 text-red-400 border border-red-500/30' },
+        'missing': { text: 'Пропал без вести', color: 'bg-yellow-900/40 text-yellow-400 border border-yellow-500/30' },
+        'deceased': { text: 'Скончался', color: 'bg-gray-800 text-gray-400 border border-gray-600/30' }
+    };
+
+    async function loadBook() {
+        openModal('book');
+        const list = document.getElementById('heroes-list');
+        list.innerHTML = '<p class="text-blue-400 animate-pulse uppercase text-xs tracking-widest">Обращение к архивам...</p>';
+
+        try {
+            const user = auth.currentUser;
+            const isModerator = user && user.email === ADMIN_EMAIL;
+            
+            const snapshot = await db.collection('heroes').orderBy('timestamp', 'desc').get();
+            list.innerHTML = '';
+
+            if(snapshot.empty) {
+                list.innerHTML = '<p class="text-gray-500">Архивы пусты. Ваша история может стать первой.</p>';
+                return;
+            }
+
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const canSee = data.status === 'approved' || isModerator || (user && data.userId === user.uid);
+                
+                if (canSee) {
+                    const statusInfo = statusLabels[data.lifeStatus] || statusLabels['deceased'];
+                    const card = document.createElement('div');
+                    card.className = 'hero-card';
+                    card.innerHTML = `
+                        <div class="flex flex-col md:flex-row justify-between items-start gap-4">
+                            <div>
+                                <h3 class="military-text text-2xl ${data.status === 'pending' ? 'text-yellow-500 opacity-60' : 'text-white'}">${data.name}</h3>
+                                <p class="text-blue-400 text-[10px] font-bold mt-1 uppercase tracking-widest">${data.location || 'Место службы не указано'}</p>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <span class="status-indicator ${statusInfo.color}">${statusInfo.text}</span>
+                                <span class="text-[10px] text-gray-500 font-mono">${data.birth || '??'} — ${data.death || '??'}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 border-l-2 border-white/5 pl-4">
+                            <p class="text-gray-400 text-sm leading-relaxed">${data.desc || 'Описание отсутствует.'}</p>
+                        </div>
+                        
+                        <div class="mt-4 pt-4 border-t border-white/5 flex flex-wrap gap-2">
+                            <span class="text-[9px] text-white/40 uppercase">Награды:</span>
+                            <span class="text-[10px] text-yellow-500/80 italic">${data.medals || 'Сведения отсутствуют'}</span>
+                        </div>
+
+                        ${isModerator ? `
+                            <div class="admin-controls mt-6 flex gap-3">
+                                ${data.status === 'pending' ? `<button onclick="approveHero('${doc.id}')" class="bg-green-600/20 text-green-400 px-4 py-2 rounded text-[9px] font-black uppercase hover:bg-green-600 hover:text-white transition-colors">Одобрить</button>` : ''}
+                                <button onclick="deleteHero('${doc.id}')" class="bg-red-600/20 text-red-400 px-4 py-2 rounded text-[9px] font-black uppercase hover:bg-red-600 hover:text-white transition-colors">Удалить</button>
+                            </div>
+                        ` : ''}
+                        
+                        ${data.status === 'pending' ? '<div class="absolute top-2 right-2 text-[8px] bg-yellow-500/20 text-yellow-500 px-2 py-1 rounded font-bold uppercase">На модерации</div>' : ''}
+                    `;
+                    list.appendChild(card);
+                }
+            });
+        } catch (e) {
+            list.innerHTML = '<p class="text-red-500">Ошибка связи с архивом.</p>';
+            console.error(e);
+        }
+    }
+
+    async function approveHero(id) {
+        if(confirm("Подтвердить публикацию этой записи?")) {
+            await db.collection('heroes').doc(id).update({ status: 'approved' });
+            loadBook();
+        }
+    }
+
+    async function deleteHero(id) {
+        if(confirm("Данное действие нельзя отменить. Удалить запись?")) {
+            await db.collection('heroes').doc(id).delete();
+            loadBook();
+        }
+    }
+
+    // --- Анимация фона ---
+    const canvas = document.getElementById('memorial-canvas');
+    const ctx = canvas.getContext('2d');
+    let souls = []; let stars = [];
+    class Particle {
+        constructor(isSoul) { this.isSoul = isSoul; this.reset(); if(!isSoul) this.y = Math.random() * canvas.height; }
+        reset() {
+            this.x = Math.random() * canvas.width;
+            this.y = this.isSoul ? canvas.height + 100 : Math.random() * canvas.height;
+            this.size = this.isSoul ? (1.5 + Math.random() * 2) : Math.random() * 1.2;
+            this.speed = this.isSoul ? (0.3 + Math.random() * 0.6) : 0;
+            this.opacity = this.isSoul ? 0 : Math.random();
+            this.osc = Math.random() * 100;
+            this.color = Math.random() > 0.85 ? '255, 77, 77' : '255, 255, 255';
+        }
+        update() {
+            if(this.isSoul) {
+                this.y -= this.speed; this.osc += 0.02; this.x += Math.sin(this.osc) * 0.5;
+                if (this.y > canvas.height * 0.4) this.opacity = Math.min(0.5, this.opacity + 0.005);
+                else if (this.y < canvas.height * 0.2) this.opacity = Math.max(0, this.opacity - 0.005);
+                if (this.y < -100) this.reset();
+            } else { this.opacity = 0.1 + Math.abs(Math.sin(Date.now() * 0.001 + this.osc)) * 0.4; }
+        }
+        draw() {
+            ctx.save(); ctx.globalAlpha = this.opacity;
+            if(this.isSoul) {
+                const grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 25);
+                grad.addColorStop(0, `rgba(${this.color}, 0.8)`); grad.addColorStop(1, `rgba(${this.color}, 0)`);
+                ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(this.x, this.y, this.size * 25, 0, Math.PI*2); ctx.fill();
+            } else { ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill(); }
+            ctx.restore();
+        }
+    }
+    function init() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; souls = Array.from({length: 45}, () => new Particle(true)); stars = Array.from({length: 130}, () => new Particle(false)); }
+    function animate() { ctx.fillStyle = '#050508'; ctx.fillRect(0, 0, canvas.width, canvas.height); stars.forEach(s => { s.update(); s.draw(); }); souls.forEach(s => { s.update(); s.draw(); }); requestAnimationFrame(animate); }
+    function openModal(id) { closeModal(); document.getElementById('modal-' + id).style.display = 'flex'; }
+    function closeModal() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
     window.addEventListener('resize', init);
     init(); animate();
 </script>
