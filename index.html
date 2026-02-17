@@ -30,7 +30,6 @@
             text-transform: uppercase; 
             letter-spacing: -0.02em; 
             line-height: 0.9; 
-            filter: drop-shadow(0 0 30px rgba(0,0,0,1)); 
         }
 
         .text-hero { 
@@ -45,322 +44,182 @@
             -webkit-text-fill-color: transparent; 
         }
 
-        .text-official {
-            color: #3b82f6;
-            text-shadow: 0 0 15px rgba(59, 130, 246, 0.9), 0 0 30px rgba(59, 130, 246, 0.5);
-            letter-spacing: 0.5em;
-            font-weight: 700;
-            text-transform: uppercase;
-        }
-
         #memorial-canvas { 
             position: fixed; 
             top: 0; left: 0; width: 100%; height: 100%; 
             z-index: 1; 
-            cursor: default;
         }
 
-        /* Контейнер для воина */
         .warrior-overlay {
             position: fixed;
             bottom: 0;
             left: 50%;
             transform: translateX(-50%);
-            height: 85vh;
+            height: 80vh;
             z-index: 2;
             pointer-events: none;
-            opacity: 0.4;
-            mask-image: linear-gradient(to top, black 80%, transparent 100%);
-            -webkit-mask-image: linear-gradient(to top, black 80%, transparent 100%);
-        }
-
-        .warrior-silhouette {
-            height: 100%;
-            filter: drop-shadow(0 0 20px rgba(255,255,255,0.1));
+            opacity: 0.3;
+            mask-image: linear-gradient(to top, black 70%, transparent 100%);
         }
 
         .btn-main { 
-            background: transparent; 
+            background: rgba(255, 255, 255, 0.05); 
             border: 1px solid rgba(255, 255, 255, 0.2); 
             padding: 14px 40px; 
             font-size: 12px; 
             text-transform: uppercase; 
             letter-spacing: 4px; 
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
-            color: rgba(255, 255, 255, 0.8); 
+            transition: all 0.3s ease; 
+            color: white; 
             cursor: pointer;
-            z-index: 20;
-            backdrop-filter: blur(5px);
+            backdrop-filter: blur(10px);
         }
 
-        .btn-main:hover:not(:disabled) { 
-            background: white; color: black; border-color: white; 
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(255,255,255,0.15);
-        }
-
-        .btn-main:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        .btn-main:hover { 
+            background: white; color: black; 
         }
 
         .modal {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.95);
+            background: rgba(0,0,0,0.9);
             z-index: 1000;
-            backdrop-filter: blur(15px);
+            backdrop-filter: blur(20px);
             justify-content: center;
             align-items: center;
-        }
-        .modal-content {
-            background: #0a0a0c;
-            border: 1px solid rgba(255,255,255,0.05);
-            padding: 40px;
-            max-width: 850px;
-            width: 95%;
-            text-align: center;
-            max-height: 90vh;
-            overflow-y: auto;
+            padding: 20px;
         }
 
-        .user-badge {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 100;
-            display: none;
-            align-items: center;
-            gap: 12px;
-            background: rgba(255,255,255,0.1);
-            padding: 8px 16px;
-            border-radius: 50px;
-            border: 1px solid rgba(255,255,255,0.2);
-            backdrop-filter: blur(10px);
+        .modal-content {
+            background: #0d0d0f;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border-radius: 4px;
         }
 
         input, textarea, select {
             width: 100%;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.1);
+            background: #16161a;
+            border: 1px solid #2d2d33;
             padding: 12px;
-            margin-bottom: 12px;
+            margin-top: 5px;
+            margin-bottom: 15px;
             color: white;
-            font-size: 14px;
-            outline: none;
             border-radius: 4px;
         }
-        
-        select option {
-            background: #0a0a0c;
-            color: white;
-        }
 
-        .hero-card {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 24px;
-            margin-bottom: 20px;
-            text-align: left;
+        .hero-media {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
             border-radius: 8px;
-            position: relative;
+            margin-bottom: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
-        .status-indicator {
-            font-size: 10px;
-            padding: 3px 10px;
+        .user-badge {
+            position: fixed;
+            top: 20px; right: 20px;
+            z-index: 100;
+            background: rgba(255,255,255,0.05);
+            padding: 10px 20px;
             border-radius: 4px;
-            text-transform: uppercase;
-            font-weight: 900;
-            letter-spacing: 1px;
-        }
-
-        .loading-overlay {
-            position: absolute;
-            inset: 0;
-            background: rgba(0,0,0,0.7);
-            display: none;
-            justify-content: center;
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            gap: 15px;
             align-items: center;
-            z-index: 50;
         }
     </style>
 </head>
 <body>
+
 <canvas id="memorial-canvas"></canvas>
 
-<!-- Визуальный образ воина -->
 <div class="warrior-overlay">
-    <svg class="warrior-silhouette" viewBox="0 0 500 800" xmlns="http://www.w3.org/2000/svg">
-        <path d="M250 50 C230 50 215 65 215 85 C215 105 230 120 250 120 C270 120 285 105 285 85 C285 65 270 50 250 50 Z M210 130 L200 160 L180 250 L170 400 L185 800 L315 800 L330 400 L320 250 L300 160 L290 130 Z" fill="none" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
-        <!-- Стилизованный шлем и плечи -->
-        <path d="M220 130 Q250 110 280 130 L300 170 Q320 250 310 350 L190 350 Q180 250 200 170 Z" fill="rgba(255,255,255,0.05)" />
-        <!-- Оружие/Атрибут (за спиной) -->
-        <line x1="200" y1="150" x2="350" y2="450" stroke="rgba(255,255,255,0.1)" stroke-width="3" />
+    <svg width="400" height="800" viewBox="0 0 400 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M200 50 L160 150 L150 300 L140 500 L160 750 L240 750 L260 500 L250 300 L240 150 Z" stroke="white" stroke-opacity="0.5" />
+        <circle cx="200" cy="100" r="30" stroke="white" stroke-opacity="0.5" />
     </svg>
 </div>
 
-<div id="user-status" class="user-badge">
-    <div id="admin-marker" class="hidden w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,1)]"></div>
-    <div id="online-marker" class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-    <span id="user-name" class="text-[10px] uppercase tracking-widest text-white font-bold">Гость</span>
-    <button onclick="logout()" class="text-[9px] text-red-500 uppercase font-bold hover:text-white border-l border-white/10 pl-3 ml-2 transition-colors">Выйти</button>
+<div id="user-status" class="user-badge" style="display: none;">
+    <span id="user-name" class="text-[10px] uppercase tracking-widest"></span>
+    <button onclick="logout()" class="text-[10px] text-red-500 hover:text-white uppercase font-bold">Выйти</button>
 </div>
 
 <main class="relative z-10 flex flex-col items-center justify-center min-h-screen text-center px-6 pointer-events-none">
-    <div class="select-none mb-12 pointer-events-auto">
-        <h1 class="military-text text-hero text-[80px] md:text-[140px]">ГЕРОИ</h1>
-        <div class="py-4">
-            <span class="text-official text-sm md:text-xl">ОФИЦИАЛЬНЫЙ МЕМОРИАЛ</span>
-        </div>
-        <h1 class="military-text text-eternity text-[80px] md:text-[140px]">ВЕЧНОСТЬ</h1>
+    <div class="mb-12 pointer-events-auto">
+        <h1 class="military-text text-hero text-[70px] md:text-[120px]">ГЕРОИ</h1>
+        <h1 class="military-text text-eternity text-[70px] md:text-[120px]">ВЕЧНОСТЬ</h1>
     </div>
 
-    <div class="flex flex-col md:flex-row gap-8 justify-center items-center pointer-events-auto">
-        <button onclick="loadBook()" class="btn-main">Книга Памяти</button>
-        <!-- Текст заменен на "Добавить воина" -->
-        <button id="main-action-btn" onclick="checkAuthAndOpen()" class="btn-main" style="border-color: #ff4d4d; color: #ff4d4d;">Добавить воина</button>
+    <div class="flex flex-col md:flex-row gap-6 pointer-events-auto">
+        <button onclick="openModal('book')" class="btn-main">Книга Памяти</button>
+        <button id="add-warrior-btn" onclick="checkAuthAndOpen()" class="btn-main" style="border-color: #ff4d4d; color: #ff4d4d;">Добавить воина</button>
     </div>
 </main>
 
-<!-- Книга Памяти -->
-<div id="modal-book" class="modal" onclick="closeModal()">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <h2 class="military-text text-hero text-4xl mb-6">Книга Памяти</h2>
-        <div id="heroes-list" class="space-y-4 mb-8 max-h-[60vh] overflow-y-auto pr-2 text-white">
-            <p class="text-gray-500 italic">Запрос в архив...</p>
-        </div>
-        <button onclick="closeModal()" class="btn-main">Закрыть</button>
-    </div>
-</div>
-
-<!-- Одиночная карточка героя -->
-<div id="modal-hero-single" class="modal" onclick="closeModal()">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <div id="hero-single-content"></div>
-        <button onclick="closeModal()" class="btn-main mt-6">Вернуться</button>
-    </div>
-</div>
-
-<!-- Авторизация -->
-<div id="modal-auth" class="modal" onclick="closeModal()">
-    <div class="modal-content relative" onclick="event.stopPropagation()">
-        <div id="auth-loading" class="loading-overlay">
-            <div class="w-8 h-8 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
-        </div>
-        
-        <h2 class="military-text text-eternity text-4xl mb-6">Авторизация</h2>
-        
-        <div id="auth-email-section" class="mb-8 text-left max-w-sm mx-auto">
-            <div class="mb-4">
-                <label class="text-[10px] uppercase text-gray-500 block mb-1">Электронная почта</label>
-                <input type="email" id="auth-email" placeholder="example@mail.ru" class="w-full">
-            </div>
-            <div class="mb-6">
-                <label class="text-[10px] uppercase text-gray-500 block mb-1">Пароль</label>
-                <input type="password" id="auth-password" placeholder="••••••••" class="w-full">
-            </div>
-            
-            <div class="flex flex-col gap-3">
-                <button id="btn-register" onclick="handleEmailAuth('register')" class="w-full bg-white text-black py-4 text-[11px] uppercase font-black tracking-widest hover:bg-red-600 hover:text-white transition-all shadow-xl">
-                    Зарегистрироваться
-                </button>
-                <button onclick="handleEmailAuth('login')" class="w-full bg-white/5 text-gray-400 border border-white/10 py-3 text-[10px] uppercase font-bold hover:bg-white/10 hover:text-white transition-all">
-                    Уже есть аккаунт? Войти
-                </button>
-            </div>
-        </div>
-
-        <div class="relative flex items-center justify-center mb-8">
-            <div class="border-t border-white/10 w-full"></div>
-            <span class="absolute bg-[#0a0a0c] px-4 text-[9px] text-gray-500 uppercase tracking-widest">быстрый вход</span>
-        </div>
-
-        <div class="flex flex-col gap-4 max-w-sm mx-auto">
-            <button onclick="loginGoogle()" class="bg-blue-600/10 text-blue-400 border border-blue-500/20 px-12 py-3 font-bold uppercase text-[10px] tracking-widest hover:bg-blue-600 hover:text-white transition-all w-full flex items-center justify-center gap-3">
-                <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="currentColor" d="M21.35,11.1H12.18V13.83H18.69C18.36,17.64 15.19,19.27 12.19,19.27C9.03,19.27 6.59,17.38 6.59,12C6.59,6.62 9,4.73 12.19,4.73C14.63,4.73 16.1,6.12 16.1,6.12L18,4.15C18,4.15 15.81,2 12.19,2C6.65,2 3.8,6.17 3.8,12C3.8,17.83 6.65,22 12.19,22C18.2,22 21.5,17.53 21.5,12C21.5,11.54 21.35,11.1 21.35,11.1V11.1Z"/></svg>
-                Google
-            </button>
-            <button onclick="closeModal()" class="btn-main w-full" style="border-color: rgba(255,255,255,0.05); padding: 10px;">
-                Отмена
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- Модалка ввода Имени -->
-<div id="modal-username" class="modal" onclick="closeModal()">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <h2 class="military-text text-hero text-3xl mb-6">Представьтесь</h2>
-        <p class="text-gray-400 text-sm mb-6">Ваше имя будет отображаться при добавлении историй в архив.</p>
-        <input type="text" id="new-username" placeholder="Ваше Имя / Псевдоним" class="text-center text-xl">
-        <button onclick="saveDisplayName()" class="btn-main w-full mt-4" style="border-color: #3b82f6; color: #3b82f6;">Сохранить и продолжить</button>
-    </div>
-</div>
-
-<!-- Анкета -->
+<!-- Форма добавления -->
 <div id="modal-form" class="modal" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
-        <h2 class="military-text text-hero text-3xl mb-6">Память о Воине</h2>
-        <div class="space-y-4 text-left">
-            <div>
-                <label class="text-[10px] uppercase text-gray-500">ФИО Воина</label>
-                <input type="text" placeholder="Иванов Иван Иванович" id="hero-name">
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="text-[10px] uppercase text-gray-500">Место рождения / Службы</label>
-                    <input type="text" placeholder="Город, регион" id="hero-location">
-                </div>
-                <div>
-                    <label class="text-[10px] uppercase text-gray-500">Текущий статус</label>
-                    <select id="hero-status-life">
-                        <option value="alive">Жив (Ветеран / Участник)</option>
-                        <option value="fallen">Погиб при исполнении</option>
-                        <option value="missing">Пропал без вести</option>
-                    </select>
-                </div>
-            </div>
+        <h2 class="military-text text-2xl mb-6">Новая запись в архиве</h2>
+        
+        <label class="text-[10px] uppercase text-gray-500">ФИО Воина</label>
+        <input type="text" id="hero-name" placeholder="Иванов Иван Иванович">
 
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="text-[10px] uppercase text-gray-500">Год рождения</label>
-                    <input type="text" placeholder="1990" id="hero-birth">
-                </div>
-                <div>
-                    <label class="text-[10px] uppercase text-gray-500">Дата подвига / смерти</label>
-                    <input type="text" placeholder="2024" id="hero-death">
-                </div>
-            </div>
+        <label class="text-[10px] uppercase text-gray-500">Ссылка на Фото (URL)</label>
+        <input type="text" id="hero-photo" placeholder="https://example.com/photo.jpg">
 
-            <div>
-                <label class="text-[10px] uppercase text-gray-500">Заслуги и боевой путь</label>
-                <textarea id="hero-desc" rows="4" placeholder="Опишите историю подвига..."></textarea>
-            </div>
-            
-            <div>
-                <label class="text-[10px] uppercase text-gray-500">Награды</label>
-                <input type="text" id="hero-medals" placeholder="Ордена, медали">
-            </div>
-        </div>
-        <div class="flex gap-4 mt-8">
-            <button onclick="saveHeroToDB()" id="save-btn" class="btn-main w-full" style="border-color: #3b82f6; color: #3b82f6;">Добавить в архив</button>
+        <label class="text-[10px] uppercase text-gray-500">Ссылка на Видео (YouTube/Direct URL)</label>
+        <input type="text" id="hero-video" placeholder="https://youtube.com/...">
+
+        <label class="text-[10px] uppercase text-gray-500">История подвига</label>
+        <textarea id="hero-desc" rows="4" placeholder="Краткое описание..."></textarea>
+
+        <div class="flex gap-4 mt-4">
+            <button onclick="saveHero()" id="save-btn" class="btn-main w-full" style="border-color: #3b82f6;">Сохранить</button>
             <button onclick="closeModal()" class="btn-main w-full">Отмена</button>
         </div>
     </div>
 </div>
 
+<!-- Книга Памяти -->
+<div id="modal-book" class="modal" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h2 class="military-text text-3xl mb-6">Архив</h2>
+        <div id="heroes-list" class="space-y-6"></div>
+        <button onclick="closeModal()" class="btn-main mt-8 w-full">Закрыть</button>
+    </div>
+</div>
+
+<!-- Карточка просмотра -->
+<div id="modal-view" class="modal" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <div id="hero-view-content"></div>
+        <button onclick="closeModal()" class="btn-main mt-6 w-full">Вернуться</button>
+    </div>
+</div>
+
+<!-- Вход -->
+<div id="modal-auth" class="modal" onclick="closeModal()">
+    <div class="modal-content text-center" onclick="event.stopPropagation()">
+        <h2 class="military-text text-2xl mb-6">Авторизация</h2>
+        <button onclick="loginGoogle()" class="btn-main w-full mb-4">Войти через Google</button>
+        <button onclick="closeModal()" class="btn-main w-full">Закрыть</button>
+    </div>
+</div>
+
 <script>
-    // --- Firebase ---
-    const ADMIN_EMAIL = "ВАША_ПОЧТА@gmail.com"; 
+    // --- Конфигурация ---
     const firebaseConfig = { 
         apiKey: "AIzaSyB7bTin28New3YE4GsgTjcJnzllzJn_-YI", 
         authDomain: "geroivechnost.firebaseapp.com", 
         projectId: "geroivechnost", 
-        storageBucket: "geroivechnost.firebasestorage.app", 
-        messagingSenderId: "571001236869", 
         appId: "1:571001236869:web:26d2692cff6b4c49ada8ec" 
     };
     firebase.initializeApp(firebaseConfig);
@@ -369,261 +228,159 @@
 
     let approvedHeroes = [];
 
-    // --- Обработка Аутентификации ---
-    async function handleEmailAuth(mode) {
-        const email = document.getElementById('auth-email').value.trim();
-        const password = document.getElementById('auth-password').value.trim();
-        const loader = document.getElementById('auth-loading');
-        
-        if (!email || !password) return alert("Введите почту и пароль");
-        loader.style.display = 'flex';
-
-        try {
-            if (mode === 'register') {
-                await auth.createUserWithEmailAndPassword(email, password);
-                openModal('username');
-            } else {
-                await auth.signInWithEmailAndPassword(email, password);
-                closeModal();
-            }
-        } catch (err) {
-            alert("Ошибка входа: " + err.message);
-        } finally {
-            loader.style.display = 'none';
-        }
+    // --- Логика Аутентификации ---
+    function checkAuthAndOpen() {
+        if (auth.currentUser) openModal('form');
+        else openModal('auth');
     }
 
-    async function saveDisplayName() {
-        const name = document.getElementById('new-username').value.trim();
-        if(!name) return alert("Пожалуйста, введите ваше имя");
-        const user = auth.currentUser;
-        if(user) {
-            try {
-                await user.updateProfile({ displayName: name });
-                document.getElementById('user-name').innerText = name;
-                closeModal();
-            } catch (e) { alert("Ошибка сохранения имени: " + e.message); }
-        }
+    function loginGoogle() {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        auth.signInWithPopup(provider).then(() => closeModal()).catch(e => alert(e.message));
     }
 
-    function loginGoogle() { 
-        const provider = new firebase.auth.GoogleAuthProvider(); 
-        auth.signInWithPopup(provider).then((result) => {
-            if (!result.user.displayName) openModal('username');
-            else closeModal();
-        }).catch(err => alert("Ошибка Google: " + err.message));
-    }
-    
-    function logout() { auth.signOut().then(() => window.location.reload()); }
+    function logout() { auth.signOut().then(() => location.reload()); }
 
     auth.onAuthStateChanged(user => {
-        const badge = document.getElementById('user-status');
-        const userNameText = document.getElementById('user-name');
-        const adminMarker = document.getElementById('admin-marker');
-        const mainBtn = document.getElementById('main-action-btn');
-        if (user) { 
-            badge.style.display = 'flex'; 
-            userNameText.innerText = user.displayName || user.email.split('@')[0];
-            if (user.email === ADMIN_EMAIL) adminMarker.classList.remove('hidden');
-            mainBtn.innerText = "Добавить воина";
-            mainBtn.style.borderColor = "#3b82f6";
-            mainBtn.style.color = "#3b82f6";
+        const status = document.getElementById('user-status');
+        if (user) {
+            status.style.display = 'flex';
+            document.getElementById('user-name').innerText = user.displayName;
         } else {
-            badge.style.display = 'none';
-            mainBtn.innerText = "Добавить воина";
-            mainBtn.style.borderColor = "#ff4d4d";
-            mainBtn.style.color = "#ff4d4d";
+            status.style.display = 'none';
         }
     });
 
-    function checkAuthAndOpen() { 
-        if (auth.currentUser) openModal('form'); 
-        else openModal('auth'); 
-    }
-
     // --- Логика Данных ---
-    async function fetchApprovedHeroes() {
-        try {
-            const snap = await db.collection('heroes').where('status', '==', 'approved').get();
-            approvedHeroes = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            souls.forEach(soul => soul.attachHero());
-        } catch (e) { console.error("Ошибка загрузки:", e); }
-    }
+    async function saveHero() {
+        const name = document.getElementById('hero-name').value.trim();
+        if (!name) return alert("Введите имя");
 
-    async function saveHeroToDB() {
-        const nameInput = document.getElementById('hero-name');
-        const name = nameInput.value.trim();
-        const saveBtn = document.getElementById('save-btn');
-        
-        if (!auth.currentUser) {
-            alert("Вы не авторизованы. Пожалуйста, войдите снова.");
-            openModal('auth');
-            return;
-        }
-
-        if(!name) {
-            alert("Пожалуйста, введите ФИО воина.");
-            nameInput.focus();
-            return;
-        }
-
-        saveBtn.disabled = true;
-        saveBtn.innerText = "Добавляем...";
+        const btn = document.getElementById('save-btn');
+        btn.disabled = true;
+        btn.innerText = "Сохранение...";
 
         const heroData = {
-            name: name,
-            location: document.getElementById('hero-location').value.trim(),
-            lifeStatus: document.getElementById('hero-status-life').value,
-            birth: document.getElementById('hero-birth').value.trim(),
-            death: document.getElementById('hero-death').value.trim(),
+            name,
+            photo: document.getElementById('hero-photo').value.trim(),
+            video: document.getElementById('hero-video').value.trim(),
             desc: document.getElementById('hero-desc').value.trim(),
-            medals: document.getElementById('hero-medals').value.trim(),
             userId: auth.currentUser.uid,
-            userName: auth.currentUser.displayName || auth.currentUser.email,
-            status: 'pending',
+            status: 'approved', // Для теста ставим сразу одобрено
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
         };
 
         try {
             await db.collection('heroes').add(heroData);
-            alert("История успешно отправлена на модерацию. Имя появится в архиве после проверки.");
+            alert("Воин успешно добавлен в вечность");
             closeModal();
-            // Очистка полей
-            nameInput.value = "";
-            document.getElementById('hero-location').value = "";
-            document.getElementById('hero-birth').value = "";
-            document.getElementById('hero-death').value = "";
-            document.getElementById('hero-desc').value = "";
-            document.getElementById('hero-medals').value = "";
-        } catch (e) { 
-            console.error("Firestore Error:", e);
-            alert("Ошибка сохранения: " + e.message); 
-        } finally { 
-            saveBtn.disabled = false; 
-            saveBtn.innerText = "Добавить в архив";
+            loadHeroes(); // Обновляем список и частицы
+        } catch (e) {
+            alert(e.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Сохранить";
         }
     }
 
-    const statusLabels = {
-        'alive': { text: 'Жив', color: 'bg-green-900/40 text-green-400 border-green-500/30' },
-        'fallen': { text: 'Погиб', color: 'bg-red-900/40 text-red-400 border-red-500/30' },
-        'missing': { text: 'Пропал', color: 'bg-yellow-900/40 text-yellow-400 border-yellow-500/30' }
-    };
-
-    function renderHeroCard(data) {
-        const info = statusLabels[data.lifeStatus] || { text: 'Статус неизвестен', color: 'bg-gray-800 text-gray-400' };
-        return `
-            <div class="hero-card">
-                <div class="flex flex-col md:flex-row justify-between items-start gap-4">
-                    <div>
-                        <h3 class="military-text text-2xl text-white">${data.name}</h3>
-                        <p class="text-blue-400 text-[10px] font-bold mt-1 uppercase tracking-widest">${data.location || 'Место службы'}</p>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <span class="status-indicator ${info.color} border px-2 py-1 rounded">${info.text}</span>
-                        <span class="text-[10px] text-gray-500 font-mono">${data.birth || '??'} — ${data.death || '??'}</span>
-                    </div>
-                </div>
-                <div class="mt-4 border-l-2 border-white/5 pl-4 text-left">
-                    <p class="text-gray-400 text-sm leading-relaxed">${data.desc || 'История не заполнена.'}</p>
-                </div>
-                <div class="mt-4 pt-4 border-t border-white/5 flex justify-between items-center">
-                    <div class="flex flex-wrap gap-2 text-[10px]">
-                        <span class="text-white/40 uppercase">Награды:</span>
-                        <span class="text-yellow-500 italic">${data.medals || 'Нет данных'}</span>
-                    </div>
-                    <span class="text-[8px] text-white/20 uppercase tracking-tighter">Добавил: ${data.userName || 'Аноним'}</span>
-                </div>
-            </div>
-        `;
-    }
-
-    async function loadBook() {
-        openModal('book');
+    async function loadHeroes() {
+        const snap = await db.collection('heroes').where('status', '==', 'approved').get();
+        approvedHeroes = snap.docs.map(doc => doc.data());
+        
         const list = document.getElementById('heroes-list');
-        list.innerHTML = '<p class="text-gray-500 italic text-center py-10">Запрос в архив...</p>';
-        try {
-            const user = auth.currentUser;
-            const isMod = user && user.email === ADMIN_EMAIL;
-            const snap = await db.collection('heroes').orderBy('timestamp', 'desc').get();
-            list.innerHTML = '';
-            snap.forEach(doc => {
-                const data = doc.data();
-                if (data.status === 'approved' || isMod || (user && data.userId === user.uid)) {
-                    const wrap = document.createElement('div');
-                    wrap.innerHTML = renderHeroCard(data);
-                    if(isMod && data.status === 'pending') {
-                         const btn = document.createElement('button');
-                         btn.innerText = "Одобрить данные";
-                         btn.className = "text-[10px] bg-green-600 text-white px-4 py-1 mb-4 rounded hover:bg-green-500 transition-colors cursor-pointer pointer-events-auto";
-                         btn.onclick = async () => { 
-                             await db.collection('heroes').doc(doc.id).update({status:'approved'}); 
-                             loadBook(); 
-                         };
-                         wrap.appendChild(btn);
-                    }
-                    list.appendChild(wrap);
-                }
-            });
-            if (list.innerHTML === '') list.innerHTML = '<p class="text-gray-500 text-center py-10">Книга памяти пока пуста.</p>';
-        } catch (e) { 
-            console.error(e);
-            list.innerHTML = '<p class="text-red-500 text-center py-10">Ошибка доступа к архиву.</p>'; 
-        }
+        list.innerHTML = '';
+        approvedHeroes.forEach(h => {
+            list.innerHTML += `
+                <div class="border-b border-white/10 pb-4 cursor-pointer hover:bg-white/5 p-2 transition" onclick="viewHero(${JSON.stringify(h).replace(/"/g, '&quot;')})">
+                    <h3 class="font-bold">${h.name}</h3>
+                    <p class="text-[10px] text-gray-500 truncate">${h.desc || 'Нет описания'}</p>
+                </div>
+            `;
+        });
     }
 
-    // --- Canvas ---
+    function viewHero(h) {
+        const content = document.getElementById('hero-view-content');
+        let mediaHtml = '';
+        
+        if (h.photo) mediaHtml += `<img src="${h.photo}" class="hero-media" onerror="this.style.display='none'">`;
+        if (h.video) {
+            if (h.video.includes('youtube.com') || h.video.includes('youtu.be')) {
+                const vidId = h.video.split('v=')[1] || h.video.split('/').pop();
+                mediaHtml += `<iframe width="100%" height="300" src="https://www.youtube.com/embed/${vidId}" frameborder="0" allowfullscreen class="rounded-lg mb-4"></iframe>`;
+            } else {
+                mediaHtml += `<video src="${h.video}" controls class="hero-media"></video>`;
+            }
+        }
+
+        content.innerHTML = `
+            <h2 class="military-text text-3xl mb-4">${h.name}</h2>
+            ${mediaHtml}
+            <p class="text-gray-300 leading-relaxed">${h.desc}</p>
+        `;
+        openModal('view');
+    }
+
+    // --- Canvas (Частицы с именами) ---
     const canvas = document.getElementById('memorial-canvas');
     const ctx = canvas.getContext('2d');
-    let souls = []; let stars = [];
-    class Particle {
-        constructor(isSoul) { this.isSoul = isSoul; this.hero = null; this.reset(); if(!isSoul) this.y = Math.random() * canvas.height; }
+    let particles = [];
+
+    class Soul {
+        constructor() { this.reset(); this.y = Math.random() * canvas.height; }
         reset() {
             this.x = Math.random() * canvas.width;
-            this.y = this.isSoul ? canvas.height + 100 : Math.random() * canvas.height;
-            this.size = this.isSoul ? (1.5 + Math.random() * 2) : Math.random() * 1.2;
-            this.speed = this.isSoul ? (0.2 + Math.random() * 0.5) : 0;
+            this.y = canvas.height + 50;
+            this.speed = 0.3 + Math.random() * 0.7;
+            this.size = 1 + Math.random() * 2;
             this.opacity = 0;
-            this.osc = Math.random() * 100;
-            this.color = Math.random() > 0.8 ? '255, 77, 77' : '255, 255, 255';
-            this.attachHero();
+            this.hero = approvedHeroes.length > 0 ? approvedHeroes[Math.floor(Math.random() * approvedHeroes.length)] : null;
         }
-        attachHero() { if (this.isSoul && approvedHeroes.length > 0) this.hero = approvedHeroes[Math.floor(Math.random() * approvedHeroes.length)]; }
         update() {
-            if(this.isSoul) {
-                this.y -= this.speed; this.osc += 0.015; this.x += Math.sin(this.osc) * 0.4;
-                if (this.y > canvas.height * 0.4) this.opacity = Math.min(0.6, this.opacity + 0.005);
-                else if (this.y < canvas.height * 0.2) this.opacity = Math.max(0, this.opacity - 0.005);
-                if (this.y < -100) this.reset();
-            } else this.opacity = 0.1 + Math.abs(Math.sin(Date.now() * 0.001 + this.osc)) * 0.4;
+            this.y -= this.speed;
+            if (this.y < canvas.height * 0.8) this.opacity = Math.min(0.5, this.opacity + 0.01);
+            if (this.y < 50) this.opacity -= 0.01;
+            if (this.y < -50 || this.opacity <= 0 && this.y < 0) this.reset();
         }
         draw() {
-            ctx.save(); ctx.globalAlpha = this.opacity;
-            if(this.isSoul) {
-                const r = this.size * 22;
-                const grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, r);
-                grad.addColorStop(0, `rgba(${this.color}, 0.8)`);
-                grad.addColorStop(1, `rgba(${this.color}, 0)`);
-                ctx.fillStyle = grad;
-                ctx.beginPath(); ctx.arc(this.x, this.y, r, 0, Math.PI*2); ctx.fill();
-            } else {
-                ctx.fillStyle = 'white';
-                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = "white";
+            ctx.fill();
+
+            // Отображение имени рядом с "душой"
+            if (this.hero && this.opacity > 0.2) {
+                ctx.font = "8px Inter";
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity * 0.5})`;
+                ctx.fillText(this.hero.name.split(' ')[0], this.x + 10, this.y + 3);
             }
-            ctx.restore();
         }
     }
-    canvas.addEventListener('click', (e) => {
-        const clicked = souls.find(s => s.hero && s.opacity > 0.1 && Math.sqrt((e.clientX - s.x)**2 + (e.clientY - s.y)**2) < 35);
-        if (clicked) { document.getElementById('hero-single-content').innerHTML = renderHeroCard(clicked.hero); openModal('hero-single'); }
-    });
-    function init() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; souls = Array.from({length: 40}, () => new Particle(true)); stars = Array.from({length: 120}, () => new Particle(false)); fetchApprovedHeroes(); }
-    function animate() { ctx.fillStyle = '#050508'; ctx.fillRect(0, 0, canvas.width, canvas.height); stars.forEach(s => { s.update(); s.draw(); }); souls.forEach(s => { s.update(); s.draw(); }); requestAnimationFrame(animate); }
-    function openModal(id) { closeModal(); document.getElementById('modal-' + id).style.display = 'flex'; }
+
+    function init() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        particles = Array.from({length: 50}, () => new Soul());
+        loadHeroes();
+    }
+
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => { p.update(); p.draw(); });
+        requestAnimationFrame(animate);
+    }
+
+    function openModal(id) { document.getElementById('modal-' + id).style.display = 'flex'; }
     function closeModal() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
+
     window.addEventListener('resize', init);
     init(); animate();
-    setInterval(fetchApprovedHeroes, 60000);
+    
+    // Авто-обновление данных каждые 30 сек
+    setInterval(loadHeroes, 30000);
 </script>
+
 </body>
 </html>
