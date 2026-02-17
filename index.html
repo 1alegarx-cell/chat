@@ -65,10 +65,10 @@
         .btn-main { 
             background: rgba(255, 255, 255, 0.05); 
             border: 1px solid rgba(255, 255, 255, 0.2); 
-            padding: 14px 40px; 
-            font-size: 12px; 
+            padding: 12px 30px; 
+            font-size: 11px; 
             text-transform: uppercase; 
-            letter-spacing: 4px; 
+            letter-spacing: 3px; 
             transition: all 0.3s ease; 
             color: white; 
             cursor: pointer;
@@ -95,14 +95,14 @@
             background: #0d0d0f;
             border: 1px solid rgba(255,255,255,0.1);
             padding: 30px;
-            max-width: 600px;
+            max-width: 500px;
             width: 100%;
             max-height: 90vh;
             overflow-y: auto;
             border-radius: 4px;
         }
 
-        input[type="text"], textarea {
+        input[type="text"], input[type="email"], input[type="password"], textarea {
             width: 100%;
             background: #16161a;
             border: 1px solid #2d2d33;
@@ -111,46 +111,7 @@
             margin-bottom: 15px;
             color: white;
             border-radius: 4px;
-        }
-
-        .file-input-wrapper {
-            position: relative;
-            margin-bottom: 20px;
-            border: 2px dashed rgba(255,255,255,0.1);
-            padding: 20px;
-            text-align: center;
-            border-radius: 8px;
-            transition: border-color 0.3s;
-        }
-
-        .file-input-wrapper:hover {
-            border-color: #ff4d4d;
-        }
-
-        .file-input-wrapper input {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            opacity: 0;
-            cursor: pointer;
-        }
-
-        .preview-box {
-            width: 100%;
-            max-height: 200px;
-            object-fit: contain;
-            background: #000;
-            border-radius: 8px;
-            margin-top: 10px;
-            display: none;
-        }
-
-        .hero-media {
-            width: 100%;
-            max-height: 400px;
-            object-fit: contain;
-            border-radius: 8px;
-            margin-bottom: 15px;
-            background: #000;
+            font-size: 14px;
         }
 
         .user-badge {
@@ -166,6 +127,16 @@
             align-items: center;
         }
 
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-online { background: #10b981; box-shadow: 0 0 8px #10b981; }
+        .status-offline { background: #ef4444; }
+
         .admin-tag {
             background: #ff4d4d;
             color: white;
@@ -173,6 +144,38 @@
             padding: 2px 6px;
             border-radius: 2px;
             font-weight: bold;
+            margin-top: 2px;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+            border: 2px dashed rgba(255,255,255,0.1);
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+        }
+        .file-input-wrapper input {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .preview-box {
+            width: 100%;
+            max-height: 200px;
+            object-fit: contain;
+            display: none;
+            margin-top: 10px;
+        }
+
+        .hero-media {
+            width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+            border-radius: 8px;
+            background: #000;
         }
     </style>
 </head>
@@ -187,9 +190,13 @@
     </svg>
 </div>
 
+<!-- Панель пользователя -->
 <div id="user-status" class="user-badge" style="display: none;">
     <div class="flex flex-col items-end">
-        <span id="user-name" class="text-[10px] uppercase tracking-widest"></span>
+        <div class="flex items-center">
+            <span id="online-dot" class="status-dot status-offline"></span>
+            <span id="user-name" class="text-[10px] uppercase tracking-widest"></span>
+        </div>
         <span id="admin-indicator" class="admin-tag" style="display: none;">АДМИНИСТРАТОР</span>
     </div>
     <button onclick="logout()" class="text-[10px] text-red-500 hover:text-white uppercase font-bold">Выйти</button>
@@ -207,6 +214,37 @@
     </div>
 </main>
 
+<!-- Универсальное окно авторизации -->
+<div id="modal-auth" class="modal" onclick="closeModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <h2 class="military-text text-2xl mb-6 text-center">Вход в систему</h2>
+        
+        <div id="auth-email-form">
+            <label class="text-[10px] uppercase text-gray-500">Электронная почта</label>
+            <input type="email" id="auth-email" placeholder="email@example.com">
+            
+            <label class="text-[10px] uppercase text-gray-500">Пароль</label>
+            <input type="password" id="auth-pass" placeholder="••••••••">
+            
+            <div class="flex flex-col gap-3 mt-2">
+                <button onclick="handleEmailAuth('login')" class="btn-main w-full" style="border-color: #3b82f6; color: #3b82f6;">Войти</button>
+                <button onclick="handleEmailAuth('register')" class="text-[10px] text-gray-400 uppercase tracking-widest hover:text-white">Регистрация новой почты</button>
+            </div>
+        </div>
+
+        <div class="relative my-8">
+            <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-white/10"></div></div>
+            <div class="relative flex justify-center text-[10px] uppercase"><span class="bg-[#0d0d0f] px-2 text-gray-500">Или</span></div>
+        </div>
+
+        <button onclick="loginGoogle()" class="btn-main w-full flex items-center justify-center gap-3">
+            <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 12-4.53z"/></svg>
+            Google Аккаунт
+        </button>
+        <button onclick="closeModal()" class="btn-main w-full mt-4 text-gray-500 border-none">Закрыть</button>
+    </div>
+</div>
+
 <!-- Форма добавления -->
 <div id="modal-form" class="modal" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
@@ -215,14 +253,14 @@
         <label class="text-[10px] uppercase text-gray-500">ФИО Воина</label>
         <input type="text" id="hero-name" placeholder="Иванов Иван Иванович">
 
-        <label class="text-[10px] uppercase text-gray-500">Загрузить фото</label>
+        <label class="text-[10px] uppercase text-gray-500">Фотография</label>
         <div class="file-input-wrapper">
             <span id="photo-label" class="text-xs text-gray-400">Нажмите для выбора фото</span>
             <input type="file" id="hero-photo-file" accept="image/*" onchange="previewFile('photo')">
             <img id="photo-preview" class="preview-box">
         </div>
 
-        <label class="text-[10px] uppercase text-gray-500">Загрузить видео</label>
+        <label class="text-[10px] uppercase text-gray-500">Видео (необязательно)</label>
         <div class="file-input-wrapper">
             <span id="video-label" class="text-xs text-gray-400">Нажмите для выбора видео</span>
             <input type="file" id="hero-video-file" accept="video/*" onchange="previewFile('video')">
@@ -230,10 +268,10 @@
         </div>
 
         <label class="text-[10px] uppercase text-gray-500">История подвига</label>
-        <textarea id="hero-desc" rows="4" placeholder="Краткое описание..."></textarea>
+        <textarea id="hero-desc" rows="4" placeholder="Опишите жизненный путь или подвиг..."></textarea>
 
         <div class="flex gap-4 mt-4">
-            <button onclick="saveHero()" id="save-btn" class="btn-main w-full" style="border-color: #3b82f6;">Сохранить в вечность</button>
+            <button onclick="saveHero()" id="save-btn" class="btn-main w-full" style="border-color: #3b82f6;">Сохранить</button>
             <button onclick="closeModal()" class="btn-main w-full">Отмена</button>
         </div>
     </div>
@@ -243,31 +281,21 @@
 <div id="modal-book" class="modal" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
         <h2 class="military-text text-3xl mb-6 text-eternity">Архив героев</h2>
-        <div id="admin-message" class="mb-4 text-[10px] text-yellow-500 uppercase tracking-widest hidden">Режим администратора включен</div>
+        <div id="admin-message" class="mb-4 text-[10px] text-yellow-500 uppercase tracking-widest hidden">Режим администратора</div>
         <div id="heroes-list" class="space-y-6"></div>
         <button onclick="closeModal()" class="btn-main mt-8 w-full">Закрыть</button>
     </div>
 </div>
 
-<!-- Карточка просмотра -->
+<!-- Просмотр -->
 <div id="modal-view" class="modal" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
         <div id="hero-view-content"></div>
-        <button onclick="closeModal()" class="btn-main mt-6 w-full">Вернуться</button>
-    </div>
-</div>
-
-<!-- Вход -->
-<div id="modal-auth" class="modal" onclick="closeModal()">
-    <div class="modal-content text-center" onclick="event.stopPropagation()">
-        <h2 class="military-text text-2xl mb-6">Авторизация</h2>
-        <button onclick="loginGoogle()" class="btn-main w-full mb-4">Войти через Google</button>
-        <button onclick="closeModal()" class="btn-main w-full">Закрыть</button>
+        <button onclick="closeModal()" class="btn-main mt-6 w-full">Назад</button>
     </div>
 </div>
 
 <script>
-    // --- НАСТРОЙКА АДМИНА ---
     const ADMIN_EMAIL = "postmaster@герои-вечность.рф"; 
 
     const firebaseConfig = { 
@@ -284,6 +312,71 @@
     let base64Photo = "";
     let base64Video = "";
 
+    // Функция входа/регистрации по Email
+    async function handleEmailAuth(type) {
+        const email = document.getElementById('auth-email').value.trim();
+        const pass = document.getElementById('auth-pass').value;
+
+        if (!email || !pass) return alert("Заполните все поля");
+        if (pass.length < 6) return alert("Пароль должен быть не менее 6 символов");
+
+        try {
+            if (type === 'register') {
+                await auth.createUserWithEmailAndPassword(email, pass);
+                alert("Аккаунт создан успешно");
+            } else {
+                await auth.signInWithEmailAndPassword(email, pass);
+            }
+            closeModal();
+        } catch (e) {
+            alert("Ошибка: " + e.message);
+        }
+    }
+
+    function loginGoogle() {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        auth.signInWithPopup(provider).then(() => closeModal())
+            .catch(e => alert("Ошибка: " + e.message));
+    }
+
+    function logout() { 
+        // При выходе обновляем статус в БД на оффлайн
+        if (auth.currentUser) {
+            db.collection('users_status').doc(auth.currentUser.uid).set({ online: false });
+        }
+        auth.signOut().then(() => location.reload()); 
+    }
+
+    // Слежение за статусом авторизации
+    auth.onAuthStateChanged(user => {
+        const statusPanel = document.getElementById('user-status');
+        const dot = document.getElementById('online-dot');
+        const adminIndicator = document.getElementById('admin-indicator');
+
+        if (user) {
+            statusPanel.style.display = 'flex';
+            document.getElementById('user-name').innerText = user.displayName || user.email.split('@')[0];
+            
+            // Устанавливаем статус "В сети"
+            dot.className = "status-dot status-online";
+            db.collection('users_status').doc(user.uid).set({ 
+                online: true, 
+                lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+                email: user.email 
+            });
+
+            if (user.email === ADMIN_EMAIL) {
+                adminIndicator.style.display = 'block';
+                document.getElementById('admin-message').classList.remove('hidden');
+            }
+        } else {
+            statusPanel.style.display = 'none';
+            dot.className = "status-dot status-offline";
+        }
+        loadHeroes();
+    });
+
+    // Обработка файлов
     function previewFile(type) {
         const fileInput = document.getElementById(`hero-${type}-file`);
         const preview = document.getElementById(`${type}-preview`);
@@ -303,45 +396,13 @@
         }
     }
 
-    function checkAuthAndOpen() {
-        if (auth.currentUser) openModal('form');
-        else openModal('auth');
-    }
-
-    function loginGoogle() {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider).then(() => {
-            closeModal();
-            loadHeroes();
-        }).catch(e => alert("Ошибка входа: " + e.message));
-    }
-
-    function logout() { auth.signOut().then(() => location.reload()); }
-
-    auth.onAuthStateChanged(user => {
-        const status = document.getElementById('user-status');
-        const adminIndicator = document.getElementById('admin-indicator');
-        const adminMsg = document.getElementById('admin-message');
-
-        if (user) {
-            status.style.display = 'flex';
-            document.getElementById('user-name').innerText = user.displayName;
-            
-            if (user.email === ADMIN_EMAIL) {
-                adminIndicator.style.display = 'block';
-                if(adminMsg) adminMsg.classList.remove('hidden');
-            }
-        }
-        loadHeroes();
-    });
-
     async function saveHero() {
         const name = document.getElementById('hero-name').value.trim();
-        if (!name) return alert("Введите имя воина");
+        if (!name) return alert("Введите имя");
 
         const btn = document.getElementById('save-btn');
         btn.disabled = true;
-        btn.innerText = "Обработка...";
+        btn.innerText = "Сохранение...";
 
         const heroData = {
             name,
@@ -356,70 +417,50 @@
 
         try {
             await db.collection('heroes').add(heroData);
-            alert("Запись отправлена. Она появится в небе после проверки администратором.");
-            
-            document.getElementById('hero-name').value = "";
-            document.getElementById('hero-desc').value = "";
-            base64Photo = ""; base64Video = "";
-            document.querySelectorAll('.preview-box').forEach(el => el.style.display = 'none');
-            
+            alert("Запись отправлена на модерацию.");
             closeModal();
             loadHeroes();
         } catch (e) {
-            alert("Ошибка сохранения: " + e.message);
+            alert("Ошибка: " + e.message);
         } finally {
             btn.disabled = false;
-            btn.innerText = "Сохранить в вечность";
+            btn.innerText = "Сохранить";
         }
     }
 
     async function approveHero(id) {
-        if (auth.currentUser.email !== ADMIN_EMAIL) return alert("У вас нет прав администратора");
-        
         try {
             await db.collection('heroes').doc(id).update({ status: 'approved' });
-            alert("Воин одобрен!");
             loadHeroes();
-        } catch (e) {
-            alert("Ошибка одобрения: " + e.message);
-        }
+        } catch (e) { alert(e.message); }
     }
 
     async function loadHeroes() {
         try {
-            const snap = await db.collection('heroes')
-                .orderBy('timestamp', 'desc')
-                .get();
-            
+            const snap = await db.collection('heroes').orderBy('timestamp', 'desc').get();
             const allHeroes = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             approvedHeroes = allHeroes.filter(h => h.status === 'approved');
             
             const list = document.getElementById('heroes-list');
             list.innerHTML = '';
-            
             const isAdmin = auth.currentUser && auth.currentUser.email === ADMIN_EMAIL;
 
             allHeroes.forEach(h => {
-                const isPending = h.status === 'pending';
-                const showApproveBtn = isAdmin && isPending;
+                if (!isAdmin && h.status !== 'approved') return;
                 
-                if (!isAdmin && isPending) return;
-
                 list.innerHTML += `
-                    <div class="border-b border-white/10 pb-4 p-4 transition rounded flex items-center justify-between bg-white/[0.02]">
+                    <div class="border-b border-white/10 pb-4 p-4 flex items-center justify-between bg-white/[0.02] rounded">
                         <div class="flex items-center gap-4 cursor-pointer flex-1" onclick="viewHero(${JSON.stringify(h).replace(/"/g, '&quot;')})">
-                            ${h.photo ? `<img src="${h.photo}" class="w-12 h-12 object-cover rounded-full border border-white/20">` : `<div class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-[10px]">НЕТ ФОТО</div>`}
+                            <img src="${h.photo || 'https://via.placeholder.com/50'}" class="w-12 h-12 object-cover rounded-full">
                             <div>
-                                <h3 class="font-bold text-lg uppercase tracking-tight ${isPending ? 'text-gray-500' : ''}">${h.name}</h3>
-                                <p class="text-[10px] ${isPending ? 'text-yellow-600' : 'text-green-600'} uppercase tracking-widest font-bold">
-                                    ${isPending ? 'На модерации' : 'В Вечности'}
+                                <h3 class="font-bold uppercase ${h.status === 'pending' ? 'text-gray-500' : ''}">${h.name}</h3>
+                                <p class="text-[8px] uppercase tracking-widest ${h.status === 'pending' ? 'text-yellow-600' : 'text-green-600'}">
+                                    ${h.status === 'pending' ? 'На проверке' : 'В Вечности'}
                                 </p>
                             </div>
                         </div>
-                        ${showApproveBtn ? `
-                            <button onclick="approveHero('${h.id}')" class="text-[10px] bg-green-900/30 border border-green-500 px-4 py-2 hover:bg-green-500 hover:text-black transition uppercase font-bold">
-                                Одобрить
-                            </button>
+                        ${isAdmin && h.status === 'pending' ? `
+                            <button onclick="approveHero('${h.id}')" class="text-[9px] border border-green-500 p-2 hover:bg-green-500 transition">ОДОБРИТЬ</button>
                         ` : ''}
                     </div>
                 `;
@@ -429,21 +470,18 @@
 
     function viewHero(h) {
         const content = document.getElementById('hero-view-content');
-        let mediaHtml = '';
-        
-        if (h.photo) mediaHtml += `<img src="${h.photo}" class="hero-media">`;
-        if (h.video) mediaHtml += `<video src="${h.video}" controls class="hero-media"></video>`;
-
         content.innerHTML = `
-            <h2 class="military-text text-4xl mb-6 text-hero">${h.name}</h2>
-            ${mediaHtml}
-            <div class="mt-6 p-4 bg-white/5 border-l-2 border-red-500 italic text-gray-300">
-                ${h.desc || 'История подвига не заполнена.'}
-            </div>
+            <h2 class="military-text text-3xl mb-4 text-hero">${h.name}</h2>
+            ${h.photo ? `<img src="${h.photo}" class="hero-media mb-4">` : ''}
+            ${h.video ? `<video src="${h.video}" controls class="hero-media mb-4"></video>` : ''}
+            <p class="text-sm leading-relaxed text-gray-300 italic p-4 bg-white/5 border-l-2 border-red-500">
+                ${h.desc || 'История не указана.'}
+            </p>
         `;
         openModal('view');
     }
 
+    // Визуализация (Canvas)
     const canvas = document.getElementById('memorial-canvas');
     const ctx = canvas.getContext('2d');
     let particles = [];
@@ -452,30 +490,29 @@
         constructor() { this.reset(); this.y = Math.random() * canvas.height; }
         reset() {
             this.x = Math.random() * canvas.width;
-            this.y = canvas.height + 100;
-            this.speed = 0.2 + Math.random() * 0.5;
-            this.size = 1 + Math.random() * 2;
+            this.y = canvas.height + 50;
+            this.speed = 0.3 + Math.random() * 0.4;
+            this.size = 1 + Math.random() * 1.5;
             this.opacity = 0;
             this.hero = approvedHeroes.length > 0 ? approvedHeroes[Math.floor(Math.random() * approvedHeroes.length)] : null;
         }
         update() {
             this.y -= this.speed;
-            if (this.y < canvas.height * 0.9) this.opacity = Math.min(0.6, this.opacity + 0.005);
-            if (this.y < 100) this.opacity -= 0.005;
-            if (this.y < -100 || (this.opacity <= 0 && this.y < 0)) this.reset();
+            if (this.y < canvas.height * 0.8) this.opacity = Math.min(0.5, this.opacity + 0.01);
+            if (this.y < 50) this.opacity -= 0.01;
+            if (this.y < -50 || this.opacity <= 0) this.reset();
         }
         draw() {
             ctx.beginPath();
             ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
             ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
-            ctx.shadowBlur = 15;
+            ctx.shadowBlur = 10;
             ctx.shadowColor = "white";
             ctx.fill();
-
             if (this.hero && this.opacity > 0.3) {
-                ctx.font = "300 10px Inter";
-                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity * 0.4})`;
-                ctx.fillText(this.hero.name.split(' ')[0], this.x + 12, this.y + 4);
+                ctx.font = "300 9px Inter";
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity * 0.3})`;
+                ctx.fillText(this.hero.name.split(' ')[0], this.x + 10, this.y + 3);
             }
         }
     }
@@ -483,12 +520,11 @@
     function init() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-        particles = Array.from({length: 40}, () => new Soul());
-        loadHeroes();
+        particles = Array.from({length: 30}, () => new Soul());
     }
 
     function animate() {
-        ctx.fillStyle = 'rgba(5, 5, 8, 0.2)'; 
+        ctx.fillStyle = 'rgba(5, 5, 8, 0.15)'; 
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         particles.forEach(p => { p.update(); p.draw(); });
         requestAnimationFrame(animate);
@@ -496,6 +532,7 @@
 
     function openModal(id) { document.getElementById('modal-' + id).style.display = 'flex'; }
     function closeModal() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
+    function checkAuthAndOpen() { auth.currentUser ? openModal('form') : openModal('auth'); }
 
     window.addEventListener('resize', init);
     init(); animate();
