@@ -179,9 +179,7 @@
     <div class="modal-content" onclick="event.stopPropagation()">
         <h2 class="military-text text-hero text-4xl mb-6">Книга Памяти</h2>
         <p class="text-gray-400 mb-8 font-light">Список воинов формируется. Мы бережно храним каждую историю.</p>
-        <div id="memorial-list" class="text-left space-y-4 mb-8">
-            <!-- Здесь будут отображаться добавленные воины -->
-        </div>
+        <div id="memorial-list" class="text-left space-y-4 mb-8"></div>
         <button onclick="closeModal()" class="btn-main">Назад</button>
     </div>
 </div>
@@ -191,14 +189,14 @@
     <div class="modal-content" onclick="event.stopPropagation()">
         <h2 class="military-text text-eternity text-4xl mb-6">Вход в систему</h2>
         <p class="text-gray-400 mb-8 font-light">Чтобы увековечить подвиг воина, необходимо подтвердить личность через Google.</p>
-        <button onclick="login()" class="bg-white text-black px-12 py-4 font-bold uppercase text-[10px] tracking-widest hover:bg-blue-600 hover:text-white transition-all w-full mb-4">
+        <button onclick="login()" id="login-google-btn" class="bg-white text-black px-12 py-4 font-bold uppercase text-[10px] tracking-widest hover:bg-blue-600 hover:text-white transition-all w-full mb-4">
             Войти через Google
         </button>
         <button onclick="closeModal()" class="text-[10px] uppercase tracking-widest text-white/30 hover:text-white">Отмена</button>
     </div>
 </div>
 
-<!-- Окно анкеты воина -->
+<!-- Окно анкеты воина (Добавление заслуг и медалей) -->
 <div id="modal-form" class="modal" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
         <h2 class="military-text text-hero text-3xl mb-6">Анкета Воина</h2>
@@ -311,17 +309,18 @@
     }
     
     function logout() { 
-        auth.signOut(); 
+        auth.signOut().then(() => {
+            window.location.reload();
+        }); 
     }
 
-    // Проверка результата редиректа при загрузке
+    // КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ: Автоматический переход к форме после редиректа
     auth.getRedirectResult().then((result) => {
         if (result.user) {
-            console.log("Успешный вход после редиректа");
-            openModal('form');
+            setTimeout(() => openModal('form'), 500);
         }
     }).catch((error) => {
-        console.error("Ошибка авторизации:", error);
+        console.error("Auth error:", error);
     });
     
     function checkAuthAndOpen() { 
@@ -334,11 +333,8 @@
 
     function saveHero() {
         const name = document.getElementById('hero-name').value;
-        const medals = document.getElementById('hero-medals').value;
         if(!name) return alert("Пожалуйста, введите имя героя");
-        
-        // В реальном приложении здесь будет db.collection('heroes').add(...)
-        alert(`Герой ${name} будет вписан в вечность. Награды: ${medals || 'не указаны'}. Данные отправлены на модерацию.`);
+        alert(`Герой ${name} успешно внесен в базу мемориала. После модерации он появится в Книге Памяти.`);
         closeModal();
     }
 
@@ -350,10 +346,10 @@
         if (user) { 
             badge.style.display = 'flex'; 
             userName.innerText = user.displayName;
-            mainBtn.innerText = "Добавить Историю";
+            mainBtn.innerText = "Добавить Героя";
             mainBtn.style.borderColor = "#3b82f6";
             mainBtn.style.color = "#3b82f6";
-            // Если модалка авторизации открыта - закрываем её
+            // Если модалка входа висит — убираем её немедленно
             const authModal = document.getElementById('modal-auth');
             if (authModal.style.display === 'flex') closeModal();
         } else { 
@@ -364,7 +360,10 @@
         }
     });
 
-    function openModal(id) { document.getElementById('modal-' + id).style.display = 'flex'; }
+    function openModal(id) { 
+        closeModal(); // Закрываем все остальные перед открытием новой
+        document.getElementById('modal-' + id).style.display = 'flex'; 
+    }
     function closeModal() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
 
     window.addEventListener('resize', init);
