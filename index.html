@@ -50,33 +50,23 @@
             z-index: 1; 
         }
 
-        .warrior-overlay {
-            position: fixed;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            height: 80vh;
-            z-index: 2;
-            pointer-events: none;
-            opacity: 0.3;
-            mask-image: linear-gradient(to top, black 70%, transparent 100%);
-        }
-
         .btn-main { 
-            background: rgba(255, 255, 255, 0.05); 
-            border: 1px solid rgba(255, 255, 255, 0.2); 
-            padding: 12px 30px; 
+            background: rgba(255, 255, 255, 0.03); 
+            border: 1px solid rgba(255, 255, 255, 0.15); 
+            padding: 14px 35px; 
             font-size: 11px; 
             text-transform: uppercase; 
             letter-spacing: 3px; 
-            transition: all 0.3s ease; 
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
             color: white; 
             cursor: pointer;
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(15px);
         }
 
         .btn-main:hover { 
             background: white; color: black; 
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255,255,255,0.1);
         }
 
         .modal {
@@ -85,7 +75,7 @@
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.95);
             z-index: 1000;
-            backdrop-filter: blur(20px);
+            backdrop-filter: blur(25px);
             justify-content: center;
             align-items: center;
             padding: 20px;
@@ -93,89 +83,94 @@
 
         .modal-content {
             background: #0d0d0f;
-            border: 1px solid rgba(255,255,255,0.1);
-            padding: 30px;
-            max-width: 500px;
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 40px;
+            max-width: 400px;
             width: 100%;
-            max-height: 90vh;
-            overflow-y: auto;
-            border-radius: 4px;
+            border-radius: 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
         }
 
-        input[type="text"], input[type="email"], input[type="password"], textarea {
+        /* Социальные кнопки */
+        .auth-provider-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
             width: 100%;
-            background: #16161a;
-            border: 1px solid #2d2d33;
-            padding: 12px;
-            margin-top: 5px;
-            margin-bottom: 15px;
-            color: white;
-            border-radius: 4px;
+            padding: 14px;
+            border-radius: 16px;
             font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-vk { background: #0077FF; color: white; }
+        .btn-max { background: #5865F2; color: white; }
+        .btn-tg { background: #229ED9; color: white; }
+        .btn-google { background: white; color: #000; border: 1px solid #e5e7eb; }
+        
+        .auth-provider-btn:hover {
+            filter: brightness(1.1);
+            transform: translateY(-1px);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 24px 0;
+            color: rgba(255,255,255,0.15);
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .divider:not(:empty)::before { margin-right: 1em; }
+        .divider:not(:empty)::after { margin-left: 1em; }
+
+        /* Красивые инпуты */
+        .input-group {
+            position: relative;
+            margin-bottom: 16px;
+        }
+        
+        .pretty-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 14px 18px;
+            color: white;
+            border-radius: 14px;
+            outline: none;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .pretty-input:focus {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.02);
+        }
+
+        .pretty-input::placeholder {
+            color: rgba(255, 255, 255, 0.2);
         }
 
         .user-badge {
             position: fixed;
-            top: 20px; right: 20px;
+            top: 25px; right: 25px;
             z-index: 100;
-            background: rgba(255,255,255,0.05);
-            padding: 10px 20px;
-            border-radius: 4px;
-            border: 1px solid rgba(255,255,255,0.1);
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 6px;
-        }
-        .status-online { background: #10b981; box-shadow: 0 0 8px #10b981; }
-        .status-offline { background: #ef4444; }
-
-        .admin-tag {
-            background: #ff4d4d;
-            color: white;
-            font-size: 8px;
-            padding: 2px 6px;
-            border-radius: 2px;
-            font-weight: bold;
-            margin-top: 2px;
-        }
-
-        .file-input-wrapper {
-            position: relative;
-            margin-bottom: 20px;
-            border: 2px dashed rgba(255,255,255,0.1);
-            padding: 20px;
-            text-align: center;
-            border-radius: 8px;
-        }
-        .file-input-wrapper input {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            opacity: 0;
-            cursor: pointer;
-        }
-
-        .preview-box {
-            width: 100%;
-            max-height: 200px;
-            object-fit: contain;
-            display: none;
-            margin-top: 10px;
-        }
-
-        .hero-media {
-            width: 100%;
-            max-height: 400px;
-            object-fit: contain;
-            border-radius: 8px;
-            background: #000;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 8px 16px;
+            border-radius: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
         }
     </style>
 </head>
@@ -183,121 +178,105 @@
 
 <canvas id="memorial-canvas"></canvas>
 
-<div class="warrior-overlay">
-    <svg width="400" height="800" viewBox="0 0 400 800" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M200 50 L160 150 L150 300 L140 500 L160 750 L240 750 L260 500 L250 300 L240 150 Z" stroke="white" stroke-opacity="0.5" />
-        <circle cx="200" cy="100" r="30" stroke="white" stroke-opacity="0.5" />
-    </svg>
-</div>
-
-<!-- Панель пользователя -->
 <div id="user-status" class="user-badge" style="display: none;">
-    <div class="flex flex-col items-end">
-        <div class="flex items-center">
-            <span id="online-dot" class="status-dot status-offline"></span>
-            <span id="user-name" class="text-[10px] uppercase tracking-widest"></span>
-        </div>
-        <span id="admin-indicator" class="admin-tag" style="display: none;">АДМИНИСТРАТОР</span>
+    <div class="flex items-center gap-4">
+        <span id="user-name" class="text-[10px] font-bold uppercase tracking-widest text-gray-300"></span>
+        <button onclick="logout()" class="text-[10px] text-red-500 hover:text-red-400 uppercase font-bold">Выйти</button>
     </div>
-    <button onclick="logout()" class="text-[10px] text-red-500 hover:text-white uppercase font-bold">Выйти</button>
 </div>
 
 <main class="relative z-10 flex flex-col items-center justify-center min-h-screen text-center px-6 pointer-events-none">
-    <div class="mb-12 pointer-events-auto">
-        <h1 class="military-text text-hero text-[70px] md:text-[120px]">ГЕРОИ</h1>
-        <h1 class="military-text text-eternity text-[70px] md:text-[120px]">ВЕЧНОСТЬ</h1>
+    <div class="mb-16 pointer-events-auto">
+        <h1 class="military-text text-hero text-[80px] md:text-[140px]">ГЕРОИ</h1>
+        <h1 class="military-text text-eternity text-[80px] md:text-[140px]">ВЕЧНОСТЬ</h1>
+        <p class="text-[10px] uppercase tracking-[10px] opacity-30 mt-4">Никто не забыт, ничто не забыто</p>
     </div>
 
-    <div class="flex flex-col md:flex-row gap-6 pointer-events-auto">
-        <button onclick="openModal('book')" class="btn-main">Книга Памяти</button>
-        <button id="add-warrior-btn" onclick="checkAuthAndOpen()" class="btn-main" style="border-color: #ff4d4d; color: #ff4d4d;">Добавить воина</button>
+    <div class="flex flex-col md:flex-row gap-8 pointer-events-auto">
+        <button onclick="openModal('book')" class="btn-main">АРХИВ ПАМЯТИ</button>
+        <button onclick="checkAuthAndOpen()" class="btn-main" style="border-color: #ff4d4d; color: #ff4d4d;">ДОБАВИТЬ ИМЯ</button>
     </div>
 </main>
 
-<!-- Универсальное окно авторизации -->
+<!-- ОКНО АВТОРИЗАЦИИ -->
 <div id="modal-auth" class="modal" onclick="closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
-        <h2 class="military-text text-2xl mb-6 text-center">Вход в систему</h2>
+        <div class="text-center mb-8">
+            <h2 class="military-text text-2xl mb-1">Авторизация</h2>
+            <p class="text-[9px] uppercase tracking-widest text-gray-500 opacity-60">Оставьте свой след в истории</p>
+        </div>
         
-        <div id="auth-email-form">
-            <label class="text-[10px] uppercase text-gray-500">Электронная почта</label>
-            <input type="email" id="auth-email" placeholder="email@example.com">
-            
-            <label class="text-[10px] uppercase text-gray-500">Пароль</label>
-            <input type="password" id="auth-pass" placeholder="••••••••">
-            
-            <div class="flex flex-col gap-3 mt-2">
-                <button onclick="handleEmailAuth('login')" class="btn-main w-full" style="border-color: #3b82f6; color: #3b82f6;">Войти</button>
-                <button onclick="handleEmailAuth('register')" class="text-[10px] text-gray-400 uppercase tracking-widest hover:text-white">Регистрация новой почты</button>
+        <!-- Социальные кнопки (Порядок: Max, VK, Telegram) -->
+        <button onclick="socialLogin('max')" class="auth-provider-btn btn-max">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+            Войти через Max
+        </button>
+
+        <button onclick="socialLogin('vk')" class="auth-provider-btn btn-vk">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M15.072 2H8.928C3.898 2 2 3.898 2 8.928v6.144C2 20.102 3.898 22 8.928 22h6.144C20.102 22 22 20.102 22 15.072V8.928C22 3.898 20.102 2 15.072 2zm3.951 13.912h-1.391c-1.127 0-1.488-.838-2.227-1.577-.661-.637-1.04-.793-1.41-.793-.521 0-.671.156-.671.86v.775c0 .463-.153.735-1.391.735-2.049 0-4.322-1.246-5.914-3.535-1.196-1.744-1.637-3.085-1.637-3.535 0-.277.106-.53.64-.53h1.392c.475 0 .647.218.823.708.88 2.531 2.348 4.745 2.348 4.745.247.46.476.621.724.621.371 0 .53-.213.53-.83v-2.31c-.088-1.018-.617-1.107-.617-1.474 0-.176.141-.354.388-.354h2.189c.318 0 .441.151.441.485v3.132c0 .335.15.452.264.452.247 0 .459-.117.918-.584.88-1.006 1.554-3.485 1.554-3.485.071-.247.283-.485.672-.485h1.391c.53 0 .653.265.547.618-.494 2.128-2.614 4.88-2.614 4.88-.23.353-.318.513 0 .937.23.303 1.024 1.007 1.553 1.63 1.042 1.229 1.484 1.762 1.554 2.055.106.336-.124.512-.653.512z"/></svg>
+            Войти через VK
+        </button>
+
+        <button onclick="socialLogin('tg')" class="auth-provider-btn btn-tg">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1 .22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.11.02-1.87 1.18-5.28 3.48-.5.34-.95.51-1.35.5-.44-.01-1.29-.25-1.92-.45-.77-.25-1.38-.38-1.33-.8.03-.22.33-.44.89-.67 3.49-1.52 5.82-2.52 6.99-3 3.33-1.37 4.02-1.61 4.47-1.62.1 0 .32.02.46.14.12.1.15.23.16.33.01.07.01.21 0 .33z"/></svg>
+            Telegram Login
+        </button>
+
+        <div class="divider">или</div>
+
+        <div class="input-group">
+            <input type="email" id="auth-email" class="pretty-input" placeholder="E-mail адрес">
+        </div>
+        <div class="input-group">
+            <input type="password" id="auth-password" class="pretty-input" placeholder="Пароль">
+        </div>
+        
+        <div class="flex flex-col gap-3 mt-6">
+            <button onclick="socialLogin('google')" class="auth-provider-btn btn-google">
+                <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                Войти через Google
+            </button>
+            <div class="flex justify-between px-2 mt-2">
+                 <button onclick="login()" class="text-[10px] uppercase font-bold text-gray-400 hover:text-white transition">Логин</button>
+                 <button onclick="register()" class="text-[10px] uppercase font-bold text-gray-400 hover:text-white transition">Регистрация</button>
             </div>
         </div>
-
-        <div class="relative my-8">
-            <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-white/10"></div></div>
-            <div class="relative flex justify-center text-[10px] uppercase"><span class="bg-[#0d0d0f] px-2 text-gray-500">Или</span></div>
-        </div>
-
-        <button onclick="loginGoogle()" class="btn-main w-full flex items-center justify-center gap-3">
-            <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 12-4.53z"/></svg>
-            Google Аккаунт
-        </button>
-        <button onclick="closeModal()" class="btn-main w-full mt-4 text-gray-500 border-none">Закрыть</button>
     </div>
 </div>
 
-<!-- Форма добавления -->
+<!-- МОДАЛКИ (ФОРМА И АРХИВ) -->
 <div id="modal-form" class="modal" onclick="closeModal()">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <h2 class="military-text text-2xl mb-6">Новая запись в архиве</h2>
-        
-        <label class="text-[10px] uppercase text-gray-500">ФИО Воина</label>
-        <input type="text" id="hero-name" placeholder="Иванов Иван Иванович">
-
-        <label class="text-[10px] uppercase text-gray-500">Фотография</label>
-        <div class="file-input-wrapper">
-            <span id="photo-label" class="text-xs text-gray-400">Нажмите для выбора фото</span>
-            <input type="file" id="hero-photo-file" accept="image/*" onchange="previewFile('photo')">
-            <img id="photo-preview" class="preview-box">
+    <div class="modal-content !max-w-xl" onclick="event.stopPropagation()">
+        <h2 class="military-text text-2xl mb-6">Карточка Героя</h2>
+        <input type="text" id="hero-name" class="pretty-input !bg-white/5 mb-4" placeholder="ФИО полностью">
+        <select id="hero-country" class="pretty-input !bg-white/5 mb-4">
+            <option value="Россия">Россия</option>
+            <option value="Беларусь">Беларусь</option>
+            <option value="Казахстан">Казахстан</option>
+            <option value="Узбекистан">Узбекистан</option>
+            <option value="Армения">Армения</option>
+        </select>
+        <div class="mb-4">
+            <input type="file" id="hero-photo-file" accept="image/*" onchange="previewFile()" class="hidden">
+            <button onclick="document.getElementById('hero-photo-file').click()" class="w-full p-4 border-2 border-dashed border-white/10 rounded-xl text-xs text-gray-500 hover:border-white/30">Прикрепить фото</button>
+            <img id="photo-preview" class="hidden mt-4 w-full h-40 object-cover rounded-xl">
         </div>
-
-        <label class="text-[10px] uppercase text-gray-500">Видео (необязательно)</label>
-        <div class="file-input-wrapper">
-            <span id="video-label" class="text-xs text-gray-400">Нажмите для выбора видео</span>
-            <input type="file" id="hero-video-file" accept="video/*" onchange="previewFile('video')">
-            <video id="video-preview" class="preview-box" controls></video>
-        </div>
-
-        <label class="text-[10px] uppercase text-gray-500">История подвига</label>
-        <textarea id="hero-desc" rows="4" placeholder="Опишите жизненный путь или подвиг..."></textarea>
-
-        <div class="flex gap-4 mt-4">
-            <button onclick="saveHero()" id="save-btn" class="btn-main w-full" style="border-color: #3b82f6;">Сохранить</button>
+        <textarea id="hero-desc" rows="4" class="pretty-input !bg-white/5 mb-4" placeholder="Биография и подвиг..."></textarea>
+        <div class="flex gap-4">
+            <button onclick="saveHero()" class="btn-main w-full !bg-red-900/20 !border-red-900/50">Сохранить</button>
             <button onclick="closeModal()" class="btn-main w-full">Отмена</button>
         </div>
     </div>
 </div>
 
-<!-- Книга Памяти -->
 <div id="modal-book" class="modal" onclick="closeModal()">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <h2 class="military-text text-3xl mb-6 text-eternity">Архив героев</h2>
-        <div id="admin-message" class="mb-4 text-[10px] text-yellow-500 uppercase tracking-widest hidden">Режим администратора</div>
-        <div id="heroes-list" class="space-y-6"></div>
-        <button onclick="closeModal()" class="btn-main mt-8 w-full">Закрыть</button>
-    </div>
-</div>
-
-<!-- Просмотр -->
-<div id="modal-view" class="modal" onclick="closeModal()">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <div id="hero-view-content"></div>
-        <button onclick="closeModal()" class="btn-main mt-6 w-full">Назад</button>
+    <div class="modal-content !max-w-3xl h-[80vh] overflow-y-auto" onclick="event.stopPropagation()">
+        <h2 class="military-text text-4xl mb-8 text-hero">Архив Памяти</h2>
+        <div id="heroes-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
     </div>
 </div>
 
 <script>
-    const ADMIN_EMAIL = "postmaster@герои-вечность.рф"; 
-
     const firebaseConfig = { 
         apiKey: "AIzaSyB7bTin28New3YE4GsgTjcJnzllzJn_-YI", 
         authDomain: "geroivechnost.firebaseapp.com", 
@@ -310,233 +289,156 @@
 
     let approvedHeroes = [];
     let base64Photo = "";
-    let base64Video = "";
 
-    // Функция входа/регистрации по Email
-    async function handleEmailAuth(type) {
-        const email = document.getElementById('auth-email').value.trim();
-        const pass = document.getElementById('auth-pass').value;
+    function socialLogin(provider) {
+        alert("Вход через " + provider.toUpperCase() + " временно в разработке. Пожалуйста, используйте форму E-mail для логина/регистрации.");
+    }
 
-        if (!email || !pass) return alert("Заполните все поля");
-        if (pass.length < 6) return alert("Пароль должен быть не менее 6 символов");
-
+    async function login() {
+        const email = document.getElementById('auth-email').value;
+        const pass = document.getElementById('auth-password').value;
+        if(!email || !pass) return alert("Заполните поля");
         try {
-            if (type === 'register') {
-                await auth.createUserWithEmailAndPassword(email, pass);
-                alert("Аккаунт создан успешно");
-            } else {
-                await auth.signInWithEmailAndPassword(email, pass);
-            }
+            await auth.signInWithEmailAndPassword(email, pass);
             closeModal();
-        } catch (e) {
-            alert("Ошибка: " + e.message);
-        }
+        } catch(e) { alert("Ошибка: " + e.message); }
     }
 
-    function loginGoogle() {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider).then(() => closeModal())
-            .catch(e => alert("Ошибка: " + e.message));
+    async function register() {
+        const email = document.getElementById('auth-email').value;
+        const pass = document.getElementById('auth-password').value;
+        if(!email || !pass) return alert("Заполните поля");
+        try {
+            await auth.createUserWithEmailAndPassword(email, pass);
+            closeModal();
+        } catch(e) { alert("Ошибка: " + e.message); }
     }
 
-    function logout() { 
-        // При выходе обновляем статус в БД на оффлайн
-        if (auth.currentUser) {
-            db.collection('users_status').doc(auth.currentUser.uid).set({ online: false });
-        }
-        auth.signOut().then(() => location.reload()); 
-    }
-
-    // Слежение за статусом авторизации
     auth.onAuthStateChanged(user => {
-        const statusPanel = document.getElementById('user-status');
-        const dot = document.getElementById('online-dot');
-        const adminIndicator = document.getElementById('admin-indicator');
-
+        const panel = document.getElementById('user-status');
         if (user) {
-            statusPanel.style.display = 'flex';
-            document.getElementById('user-name').innerText = user.displayName || user.email.split('@')[0];
-            
-            // Устанавливаем статус "В сети"
-            dot.className = "status-dot status-online";
-            db.collection('users_status').doc(user.uid).set({ 
-                online: true, 
-                lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
-                email: user.email 
-            });
-
-            if (user.email === ADMIN_EMAIL) {
-                adminIndicator.style.display = 'block';
-                document.getElementById('admin-message').classList.remove('hidden');
-            }
+            panel.style.display = 'block';
+            document.getElementById('user-name').innerText = user.email.split('@')[0];
         } else {
-            statusPanel.style.display = 'none';
-            dot.className = "status-dot status-offline";
+            panel.style.display = 'none';
         }
         loadHeroes();
     });
 
-    // Обработка файлов
-    function previewFile(type) {
-        const fileInput = document.getElementById(`hero-${type}-file`);
-        const preview = document.getElementById(`${type}-preview`);
-        const label = document.getElementById(`${type}-label`);
-        const file = fileInput.files[0];
+    async function loadHeroes() {
+        try {
+            const snap = await db.collection('heroes').orderBy('timestamp', 'desc').get();
+            const data = snap.docs.map(doc => ({id: doc.id, ...doc.data()}));
+            approvedHeroes = data.filter(h => h.status === 'approved');
+            
+            const list = document.getElementById('heroes-list');
+            list.innerHTML = '';
+            data.forEach(h => {
+                if (h.status !== 'approved' && auth.currentUser?.email !== "postmaster@герои-вечность.рф") return;
+                list.innerHTML += `
+                    <div class="bg-white/[0.03] border border-white/5 p-4 rounded-xl flex items-center gap-4 cursor-pointer hover:bg-white/[0.08]" onclick='alert("Запись: ${h.name}")'>
+                        <img src="${h.photo}" class="w-12 h-12 object-cover rounded-lg">
+                        <div class="text-left">
+                            <div class="text-[11px] font-bold uppercase">${h.name}</div>
+                            <div class="text-[8px] opacity-40 uppercase">${h.country}</div>
+                        </div>
+                    </div>
+                `;
+            });
+        } catch(e) { console.error("Load error", e); }
+    }
 
+    function previewFile() {
+        const file = document.getElementById('hero-photo-file').files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onload = function(e) {
-                preview.src = e.target.result;
-                preview.style.display = "block";
-                label.innerText = file.name;
-                if (type === 'photo') base64Photo = e.target.result;
-                if (type === 'video') base64Video = e.target.result;
-            }
+            reader.onload = (e) => {
+                document.getElementById('photo-preview').src = e.target.result;
+                document.getElementById('photo-preview').classList.remove('hidden');
+                base64Photo = e.target.result;
+            };
             reader.readAsDataURL(file);
         }
     }
 
     async function saveHero() {
-        const name = document.getElementById('hero-name').value.trim();
-        if (!name) return alert("Введите имя");
-
-        const btn = document.getElementById('save-btn');
-        btn.disabled = true;
-        btn.innerText = "Сохранение...";
-
-        const heroData = {
-            name,
-            photo: base64Photo,
-            video: base64Video,
-            desc: document.getElementById('hero-desc').value.trim(),
-            userId: auth.currentUser.uid,
-            userEmail: auth.currentUser.email,
-            status: 'pending', 
+        const name = document.getElementById('hero-name').value;
+        if (!name || !base64Photo) return alert("Заполните данные");
+        await db.collection('heroes').add({
+            name, photo: base64Photo,
+            country: document.getElementById('hero-country').value,
+            desc: document.getElementById('hero-desc').value,
+            status: 'pending',
             timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        };
-
-        try {
-            await db.collection('heroes').add(heroData);
-            alert("Запись отправлена на модерацию.");
-            closeModal();
-            loadHeroes();
-        } catch (e) {
-            alert("Ошибка: " + e.message);
-        } finally {
-            btn.disabled = false;
-            btn.innerText = "Сохранить";
-        }
+        });
+        alert("Отправлено на модерацию");
+        closeModal();
     }
 
-    async function approveHero(id) {
-        try {
-            await db.collection('heroes').doc(id).update({ status: 'approved' });
-            loadHeroes();
-        } catch (e) { alert(e.message); }
-    }
-
-    async function loadHeroes() {
-        try {
-            const snap = await db.collection('heroes').orderBy('timestamp', 'desc').get();
-            const allHeroes = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            approvedHeroes = allHeroes.filter(h => h.status === 'approved');
-            
-            const list = document.getElementById('heroes-list');
-            list.innerHTML = '';
-            const isAdmin = auth.currentUser && auth.currentUser.email === ADMIN_EMAIL;
-
-            allHeroes.forEach(h => {
-                if (!isAdmin && h.status !== 'approved') return;
-                
-                list.innerHTML += `
-                    <div class="border-b border-white/10 pb-4 p-4 flex items-center justify-between bg-white/[0.02] rounded">
-                        <div class="flex items-center gap-4 cursor-pointer flex-1" onclick="viewHero(${JSON.stringify(h).replace(/"/g, '&quot;')})">
-                            <img src="${h.photo || 'https://via.placeholder.com/50'}" class="w-12 h-12 object-cover rounded-full">
-                            <div>
-                                <h3 class="font-bold uppercase ${h.status === 'pending' ? 'text-gray-500' : ''}">${h.name}</h3>
-                                <p class="text-[8px] uppercase tracking-widest ${h.status === 'pending' ? 'text-yellow-600' : 'text-green-600'}">
-                                    ${h.status === 'pending' ? 'На проверке' : 'В Вечности'}
-                                </p>
-                            </div>
-                        </div>
-                        ${isAdmin && h.status === 'pending' ? `
-                            <button onclick="approveHero('${h.id}')" class="text-[9px] border border-green-500 p-2 hover:bg-green-500 transition">ОДОБРИТЬ</button>
-                        ` : ''}
-                    </div>
-                `;
-            });
-        } catch(e) { console.error(e); }
-    }
-
-    function viewHero(h) {
-        const content = document.getElementById('hero-view-content');
-        content.innerHTML = `
-            <h2 class="military-text text-3xl mb-4 text-hero">${h.name}</h2>
-            ${h.photo ? `<img src="${h.photo}" class="hero-media mb-4">` : ''}
-            ${h.video ? `<video src="${h.video}" controls class="hero-media mb-4"></video>` : ''}
-            <p class="text-sm leading-relaxed text-gray-300 italic p-4 bg-white/5 border-l-2 border-red-500">
-                ${h.desc || 'История не указана.'}
-            </p>
-        `;
-        openModal('view');
-    }
-
-    // Визуализация (Canvas)
+    // --- АНИМАЦИЯ ---
     const canvas = document.getElementById('memorial-canvas');
     const ctx = canvas.getContext('2d');
-    let particles = [];
+    let souls = [];
 
     class Soul {
-        constructor() { this.reset(); this.y = Math.random() * canvas.height; }
-        reset() {
+        constructor() { this.init(); }
+        init() {
             this.x = Math.random() * canvas.width;
-            this.y = canvas.height + 50;
-            this.speed = 0.3 + Math.random() * 0.4;
-            this.size = 1 + Math.random() * 1.5;
+            this.y = canvas.height + Math.random() * 500;
+            this.speed = 0.2 + Math.random() * 0.4; 
+            this.size = Math.random() * 1.5 + 0.5;
             this.opacity = 0;
-            this.hero = approvedHeroes.length > 0 ? approvedHeroes[Math.floor(Math.random() * approvedHeroes.length)] : null;
+            this.targetOpacity = 0.4 + Math.random() * 0.3;
+            this.drift = (Math.random() - 0.5) * 0.15;
+            this.heroName = "";
+            if (approvedHeroes.length > 0) {
+                const h = approvedHeroes[Math.floor(Math.random() * approvedHeroes.length)];
+                this.heroName = h.name.split(' ')[0];
+            }
         }
         update() {
             this.y -= this.speed;
-            if (this.y < canvas.height * 0.8) this.opacity = Math.min(0.5, this.opacity + 0.01);
-            if (this.y < 50) this.opacity -= 0.01;
-            if (this.y < -50 || this.opacity <= 0) this.reset();
+            this.x += this.drift + Math.sin(this.y / 120) * 0.2;
+            let fade = 180;
+            if (this.y > canvas.height - fade) this.opacity = ((canvas.height - this.y) / fade) * this.targetOpacity;
+            else if (this.y < fade) this.opacity = (this.y / fade) * this.targetOpacity;
+            else this.opacity = this.targetOpacity;
+            if (this.y < -100) this.init();
         }
         draw() {
+            ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
             ctx.beginPath();
             ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-            ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = "white";
             ctx.fill();
-            if (this.hero && this.opacity > 0.3) {
-                ctx.font = "300 9px Inter";
-                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity * 0.3})`;
-                ctx.fillText(this.hero.name.split(' ')[0], this.x + 10, this.y + 3);
+            if (this.heroName && this.opacity > 0.3) {
+                ctx.font = "300 8px Inter";
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity * 0.4})`;
+                ctx.fillText(this.heroName.toUpperCase(), this.x + 10, this.y + 3);
             }
         }
     }
 
-    function init() {
+    function initCanvas() {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-        particles = Array.from({length: 30}, () => new Soul());
+        souls = Array.from({length: 45}, () => new Soul());
     }
 
     function animate() {
-        ctx.fillStyle = 'rgba(5, 5, 8, 0.15)'; 
+        ctx.fillStyle = 'rgba(5, 5, 8, 0.08)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        particles.forEach(p => { p.update(); p.draw(); });
+        souls.forEach(s => { s.update(); s.draw(); });
         requestAnimationFrame(animate);
     }
 
-    function openModal(id) { document.getElementById('modal-' + id).style.display = 'flex'; }
-    function closeModal() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
+    function openModal(id) { document.getElementById('modal-'+id).style.display='flex'; }
+    function closeModal() { document.querySelectorAll('.modal').forEach(m=>m.style.display='none'); }
+    function logout() { auth.signOut().then(() => location.reload()); }
     function checkAuthAndOpen() { auth.currentUser ? openModal('form') : openModal('auth'); }
 
-    window.addEventListener('resize', init);
-    init(); animate();
+    window.addEventListener('resize', initCanvas);
+    initCanvas();
+    animate();
 </script>
-
 </body>
 </html>
