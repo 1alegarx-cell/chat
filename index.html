@@ -201,13 +201,18 @@
     <div class="modal-content" onclick="event.stopPropagation()">
         <h2 class="military-text text-eternity text-4xl mb-6">Авторизация</h2>
         
+        <!-- Форма для входа через любую почту -->
         <div id="auth-email-section" class="mb-8 text-left max-w-sm mx-auto">
-            <label class="text-[10px] uppercase text-gray-500">Электронная почта</label>
-            <input type="email" id="auth-email" placeholder="example@mail.ru">
-            <label class="text-[10px] uppercase text-gray-500">Пароль</label>
-            <input type="password" id="auth-password" placeholder="••••••••">
+            <div class="mb-4">
+                <label class="text-[10px] uppercase text-gray-500 block mb-1">Электронная почта</label>
+                <input type="email" id="auth-email" placeholder="example@mail.ru" class="w-full">
+            </div>
+            <div class="mb-6">
+                <label class="text-[10px] uppercase text-gray-500 block mb-1">Пароль</label>
+                <input type="password" id="auth-password" placeholder="••••••••" class="w-full">
+            </div>
             
-            <div class="flex gap-2 mt-2">
+            <div class="flex gap-2">
                 <button onclick="emailAuth('login')" class="flex-1 bg-blue-600/20 text-blue-400 border border-blue-500/30 py-3 text-[10px] uppercase font-bold hover:bg-blue-600 hover:text-white transition-all">Войти</button>
                 <button onclick="emailAuth('register')" class="flex-1 bg-white/5 text-white border border-white/10 py-3 text-[10px] uppercase font-bold hover:bg-white hover:text-black transition-all">Регистрация</button>
             </div>
@@ -215,7 +220,7 @@
 
         <div class="relative flex items-center justify-center mb-8">
             <div class="border-t border-white/10 w-full"></div>
-            <span class="absolute bg-[#0a0a0c] px-4 text-[9px] text-gray-500 uppercase tracking-widest">или</span>
+            <span class="absolute bg-[#0a0a0c] px-4 text-[9px] text-gray-500 uppercase tracking-widest">или через сервисы</span>
         </div>
 
         <div class="flex flex-col gap-4 max-w-sm mx-auto">
@@ -306,24 +311,33 @@
     async function emailAuth(mode) {
         const email = document.getElementById('auth-email').value;
         const password = document.getElementById('auth-password').value;
-        if (!email || !password) return alert("Заполните почту и пароль");
         
+        if (!email || !password) {
+            return alert("Пожалуйста, заполните почту и пароль");
+        }
+
         try {
             if (mode === 'register') {
+                // Создание нового пользователя
                 await auth.createUserWithEmailAndPassword(email, password);
-                alert("Аккаунт создан успешно");
+                alert("Аккаунт успешно создан! Теперь вы можете заполнить анкету.");
             } else {
+                // Вход существующего пользователя
                 await auth.signInWithEmailAndPassword(email, password);
             }
+            // После успешного действия открываем анкету
             openModal('form');
         } catch (err) {
+            console.error(err);
             alert("Ошибка: " + err.message);
         }
     }
 
     function loginGoogle() { 
         const provider = new firebase.auth.GoogleAuthProvider(); 
-        auth.signInWithPopup(provider).then(() => openModal('form')).catch(err => alert(err.message));
+        auth.signInWithPopup(provider).then(() => {
+            openModal('form');
+        }).catch(err => alert(err.message));
     }
     
     function logout() { auth.signOut().then(() => window.location.reload()); }
@@ -336,14 +350,24 @@
         
         if (user) { 
             badge.style.display = 'flex'; 
+            // Показываем имя (если есть) или часть почты
             userNameText.innerText = user.displayName || user.email.split('@')[0];
+            
             if (user.email === ADMIN_EMAIL) adminMarker.classList.remove('hidden');
+            
             mainBtn.innerText = "Добавить Историю";
             mainBtn.style.borderColor = "#3b82f6";
             mainBtn.style.color = "#3b82f6";
-            if (document.getElementById('modal-auth').style.display === 'flex') closeModal();
+            
+            // Если модалка авторизации открыта - закрываем её
+            if (document.getElementById('modal-auth').style.display === 'flex') {
+                closeModal();
+            }
         } else {
             badge.style.display = 'none';
+            mainBtn.innerText = "Вписать Имя";
+            mainBtn.style.borderColor = "#ff4d4d";
+            mainBtn.style.color = "#ff4d4d";
         }
     });
 
@@ -417,7 +441,7 @@
     async function loadBook() {
         openModal('book');
         const list = document.getElementById('heroes-list');
-        list.innerHTML = 'Загрузка...';
+        list.innerHTML = '<p class="text-gray-500 italic">Запрос в архив...</p>';
         try {
             const user = auth.currentUser;
             const isMod = user && user.email === ADMIN_EMAIL;
@@ -430,8 +454,8 @@
                     wrap.innerHTML = renderHeroCard(data);
                     if(isMod && data.status === 'pending') {
                          const btn = document.createElement('button');
-                         btn.innerText = "Одобрить";
-                         btn.className = "text-[10px] bg-green-600 text-white px-4 py-1 mb-4";
+                         btn.innerText = "Одобрить публикацию";
+                         btn.className = "text-[10px] bg-green-600 text-white px-4 py-1 mb-4 rounded hover:bg-green-500 transition-colors";
                          btn.onclick = async () => { 
                              await db.collection('heroes').doc(doc.id).update({status:'approved'}); 
                              loadBook(); 
@@ -441,7 +465,13 @@
                     list.appendChild(wrap);
                 }
             });
-        } catch (e) { list.innerHTML = 'Ошибка загрузки архива.'; }
+            if (list.innerHTML === '') {
+                list.innerHTML = '<p class="text-gray-500">Книга памяти пока пуста.</p>';
+            }
+        } catch (e) { 
+            console.error(e);
+            list.innerHTML = 'Ошибка загрузки архива.'; 
+        }
     }
 
     // --- Визуализация: Души ---
@@ -531,8 +561,13 @@
         souls.forEach(s => { s.update(); s.draw(); }); 
         requestAnimationFrame(animate); 
     }
-    function openModal(id) { closeModal(); document.getElementById('modal-' + id).style.display = 'flex'; }
-    function closeModal() { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); }
+    function openModal(id) { 
+        closeModal(); 
+        document.getElementById('modal-' + id).style.display = 'flex'; 
+    }
+    function closeModal() { 
+        document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); 
+    }
     window.addEventListener('resize', init);
     init(); animate();
     setInterval(fetchApprovedHeroes, 60000);
